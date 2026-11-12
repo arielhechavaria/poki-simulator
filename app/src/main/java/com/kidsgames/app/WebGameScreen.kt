@@ -43,6 +43,8 @@ data class WebGame(
 val WEB_GAMES = listOf(
     WebGame("carros", "Carros", "🚗", Color(0xFFE53935), landscape = false),
     WebGame("pacman", "Pac-Man", "👻", Color(0xFF3949AB), landscape = true),
+    // Built by CI from a pinned upstream commit (see .github/workflows/build.yml).
+    WebGame("kart-royale", "Karts", "🏎️", Color(0xFF00897B), landscape = true),
 )
 
 private const val ASSET_HOST_URL = "https://appassets.androidplatform.net/assets/games/"
