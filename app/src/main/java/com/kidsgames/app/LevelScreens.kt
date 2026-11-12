@@ -248,6 +248,9 @@ fun LevelPlay(
             promptOf = { (it.sound ?: "") + " ¿Quién hace así?" },
         )
         GameId.TRACE -> TraceGame(level, run, onHome)
+        GameId.PAINT -> PaintGame(level, run, onHome)
+        GameId.PUZZLE -> PuzzleGame(level, run, onHome)
+        GameId.SORT -> SortGame(level, run, onHome)
     }
 }
 

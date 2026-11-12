@@ -34,7 +34,7 @@ enum class Art {
     CAR, BALLOON,
 
     // Home tiles.
-    PALETTE, NUMBERS, CARDS, BLOCKS, ABACUS, NOTE, CRAYON,
+    PALETTE, NUMBERS, CARDS, BLOCKS, ABACUS, NOTE, CRAYON, BRUSH, PUZZLE, SORTER,
 
     // Collection: the daily gift and the sticker album.
     GIFT, ALBUM,
@@ -106,6 +106,9 @@ private fun DrawScope.drawArt(art: Art, tint: Color) = onGrid {
         Art.ABACUS -> abacus()
         Art.NOTE -> note()
         Art.CRAYON -> crayon()
+        Art.BRUSH -> brush()
+        Art.PUZZLE -> puzzle()
+        Art.SORTER -> sorter()
         Art.GIFT -> gift()
         Art.ALBUM -> album()
         Art.HOME -> home(tint)
@@ -616,6 +619,41 @@ private fun DrawScope.crayon() {
         roundRect(ClayColors.Canvas.copy(alpha = 0.85f), 42f, 24f, 20f, 8f, 2f)
         clayPath(ClayColors.Ochre, polygon(42f to 66f, 62f to 66f, 52f to 86f), round = 1.5f)
     }
+}
+
+private fun DrawScope.brush() {
+    groundShadow(34f)
+    // A blob of paint the brush just left.
+    oval(ClayColors.Pink, 10f, 70f, 36f, 18f)
+    ball(ClayColors.Pink.tint(0.2f), 24f, 74f, 4f)
+    rotate(40f, pivot = Offset(54f, 46f)) {
+        roundRect(ClayColors.Peach.shade(0.2f), 47f, 34f, 14f, 56f, 6f)
+        roundRect(ClayColors.Ochre, 45f, 28f, 18f, 12f, 3f)
+        clayPath(ClayColors.Pink, polygon(45f to 30f, 63f to 30f, 59f to 8f, 49f to 8f), round = 2f)
+    }
+}
+
+private fun DrawScope.puzzle() {
+    groundShadow(36f)
+    // Two pieces that fit together, each with a round tab.
+    roundRect(ClayColors.Lavender, 10f, 24f, 44f, 56f, 8f)
+    ball(ClayColors.Lavender, 54f, 52f, 8f)
+    roundRect(ClayColors.Mint, 50f, 24f, 40f, 56f, 8f)
+    ball(ClayColors.SurfaceSoft, 50f, 52f, 8f)
+    ball(ClayColors.Ochre, 28f, 46f, 7f)
+    ball(ClayColors.Coral, 72f, 58f, 7f)
+    shine(16f, 30f, 14f, 6f)
+}
+
+private fun DrawScope.sorter() {
+    groundShadow(36f)
+    // A toy box with a round hole, a star and a square dropping in.
+    roundRect(ClayColors.Peach, 12f, 44f, 76f, 44f, 10f)
+    roundRect(ClayColors.Peach.tint(0.15f), 8f, 36f, 84f, 16f, 7f)
+    ball(ClayColors.Teal, 34f, 70f, 9f)
+    roundRect(ClayColors.Teal, 54f, 61f, 18f, 18f, 4f)
+    clayPath(ClayColors.Ochre, polygon(66f to 6f, 70f to 18f, 83f to 18f, 73f to 26f, 77f to 38f, 66f to 31f, 55f to 38f, 59f to 26f, 49f to 18f, 62f to 18f), round = 2f)
+    shine(18f, 52f, 14f, 6f)
 }
 
 private fun DrawScope.gift() {
