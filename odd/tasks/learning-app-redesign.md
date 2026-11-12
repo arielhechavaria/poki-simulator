@@ -38,7 +38,7 @@ Suggested model in brackets. Briefs are under "Task briefs".
 - [x] T3 (S3, S7) inline [opus] — design system foundation and restyled home. Commit 2535bfe, CI green.
 - [x] T4 (S3, S7) inline [sonnet] — mascot, celebrations and sounds. Commit 09e000b, CI green.
 - [x] T5 (S3, S5) inline [sonnet] — own illustrations for the 6 games and app icon. Commit e896471, CI green.
-- [ ] T6 (S4, S7) inline [opus] — saved progress, stars, progressive levels, adventure-map home.
+- [x] T6 (S4, S7) inline [opus] — saved progress, stars, progressive levels, adventure-map home. Commit 5f2aa61, CI green.
 - [ ] T7 (S4, S7) inline [sonnet] — sticker album, mascot accessories, soft daily streak.
 - [ ] T8 (S4) inline [sonnet] — new games A: vowels and letters, numbers, animal sounds.
 - [ ] T9 (S4) inline [sonnet] — new games B: paint and draw, puzzles, shape sorting.
@@ -94,4 +94,5 @@ Every task ends the same way: push, green CI run, tick the task, one Log line, h
   `Sfx.kt`, and `GameFeedback` in `Feedback.kt`, which the three engines call (`ask`, `right`, `wrong`,
   `miss`, `win`, `tap`). New games should reuse `rememberGameFeedback()` and `GameScaffold`.
 - L7 (2026-11-12): T5 done in e896471, CI run 43239719955 green; device test pending (illustrations and icon were never seen, only compiled). `Art` enum + `ArtImage`/`ClayBall` in `ui/Art.kt` (100x100 grid, all drawn in code, palette plus natural fruit/animal tones); new art goes there. Includes interface icons (HOME, SPEAKER, REPLAY, tinted). Adaptive icon: `drawable/ic_launcher_{background,foreground}.xml`, `mipmap-anydpi-v26` adaptive, `mipmap-anydpi` layer-list for API 24-25. App name changed from "Mis Juegos" to "Aprendo Jugando". Emojis are gone from app code.
+- L8 (2026-11-12): T6 done in 5f2aa61, CI run 43241672229 green; device test pending (map, levels and saving were never seen, only compiled). `ProgressStore`/`Progress`/`LocalProgress` in `Progress.kt` (DataStore Preferences 1.1.1, keys `stars_total` and `best_<GameId>_<level>`: never rename `GameId` entries). `World`/`WORLDS` (stars to open: 0, 3, 6, 10, 15, 20), `LevelRun`, `roundsPerLevel` (5, memory 2) in `Worlds.kt`. `LevelPicker`, `LevelPlay`, `LevelComplete` (shows only earned stars), `StarRow`, `rememberPulse` in `LevelScreens.kt`; `AdventureMap` in `AdventureMap.kt`. Games take `(level, run, onHome)` and call `run.finishRound(stars)`; `GameScaffold` gained `roundsDone`/`roundsTotal`. New icons `Art.LOCK`, `Art.NEXT`. T7 stickers can derive "completed level" from `Progress.rating(game, level) > 0`.
 - Engram mirror pending: the memory save was blocked in auto mode, so this file is the source of truth.
