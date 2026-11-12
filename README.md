@@ -17,8 +17,13 @@ Voice prompts use the phone's text-to-speech engine; install the Spanish voice d
 
 ## Credits
 
-All code and content in this repository is original. Third-party assets added later
-must carry a verified permissive license and be listed here.
+All code and content in this repository is original, except:
+
+- **Sniglet** typeface (`app/src/main/res/font/`), by Haley Fiege, Brenda Gallo and Pablo
+  Impallari, under the SIL Open Font License 1.1 (`licenses/Sniglet-OFL.txt`). Source:
+  <https://github.com/google/fonts/tree/main/ofl/sniglet>.
+
+Third-party assets added later must carry a verified permissive license and be listed here.
 
 ## License
 

@@ -1,15 +1,11 @@
 package com.kidsgames.app
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,12 +14,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kidsgames.app.ui.ClayButton
+import com.kidsgames.app.ui.ClayCard
+import com.kidsgames.app.ui.GameScaffold
+import com.kidsgames.app.ui.theme.ClayColors
 import kotlinx.coroutines.delay
 
 private val MEMORY_EMOJIS = listOf("🐶", "🐱", "🐸", "🐥", "🍎", "🍌", "🚗", "⭐")
@@ -71,18 +68,16 @@ fun MemoryGame(onHome: () -> Unit) {
             ) {
                 rowIndices.forEach { index ->
                     val visible = index in faceUp || index in matched
-                    Box(
-                        Modifier
+                    ClayCard(
+                        color = if (visible) ClayColors.SurfaceCard else ClayColors.Lavender,
+                        modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(24.dp))
-                            .background(if (visible) Color.White else Color(0xFF1E88E5))
-                            .clickable {
-                                if (!won && faceUp.size < 2 && index !in faceUp && index !in matched) {
-                                    faceUp.add(index)
-                                }
-                            },
-                        contentAlignment = Alignment.Center
+                            .fillMaxHeight(),
+                        onClick = {
+                            if (!won && faceUp.size < 2 && index !in faceUp && index !in matched) {
+                                faceUp.add(index)
+                            }
+                        },
                     ) {
                         Text(if (visible) cards[index] else "❓", fontSize = 56.sp)
                     }
@@ -90,14 +85,11 @@ fun MemoryGame(onHome: () -> Unit) {
             }
         }
         if (won) {
-            Box(
-                Modifier
+            ClayButton(
+                onClick = { round++ },
+                modifier = Modifier
                     .fillMaxWidth()
-                    .height(96.dp)
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(Color(0xFF43A047))
-                    .clickable { round++ },
-                contentAlignment = Alignment.Center
+                    .height(96.dp),
             ) {
                 Text("🔄", fontSize = 48.sp)
             }

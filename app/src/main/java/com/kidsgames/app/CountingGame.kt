@@ -1,15 +1,11 @@
 package com.kidsgames.app
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,15 +17,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kidsgames.app.ui.ClayCard
+import com.kidsgames.app.ui.GameScaffold
+import com.kidsgames.app.ui.theme.ClayColors
+import com.kidsgames.app.ui.theme.KidsType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
+private val NUMBER_COLORS = listOf(ClayColors.Mint, ClayColors.Peach, ClayColors.Lavender)
 private val COUNT_EMOJIS = listOf("🍎", "⭐", "🐟", "🚗", "🎈", "🐥")
 
 /** Shows 1-9 objects; the child taps the matching number. */
@@ -69,30 +67,29 @@ fun CountingGame(onHome: () -> Unit) {
                 .padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            options.forEach { number ->
-                Box(
-                    Modifier
+            options.forEachIndexed { index, number ->
+                ClayCard(
+                    color = NUMBER_COLORS[index % NUMBER_COLORS.size],
+                    modifier = Modifier
                         .weight(1f)
-                        .height(120.dp)
-                        .clip(RoundedCornerShape(28.dp))
-                        .background(Color.White)
-                        .clickable(enabled = !locked) {
-                            if (number == count) {
-                                locked = true
-                                stars++
-                                speaker.say("$count. ¡Muy bien!")
-                                scope.launch {
-                                    delay(1500)
-                                    locked = false
-                                    round++
-                                }
-                            } else {
-                                speaker.say("Inténtalo otra vez")
+                        .height(130.dp),
+                    enabled = !locked,
+                    onClick = {
+                        if (number == count) {
+                            locked = true
+                            stars++
+                            speaker.say("$count. ¡Muy bien!")
+                            scope.launch {
+                                delay(1500)
+                                locked = false
+                                round++
                             }
-                        },
-                    contentAlignment = Alignment.Center
+                        } else {
+                            speaker.say("Inténtalo otra vez")
+                        }
+                    },
                 ) {
-                    Text("$number", fontSize = 64.sp, fontWeight = FontWeight.Bold)
+                    Text("$number", style = KidsType.number, color = ClayColors.Ink)
                 }
             }
         }

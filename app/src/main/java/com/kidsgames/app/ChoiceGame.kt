@@ -1,7 +1,6 @@
 package com.kidsgames.app
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,6 +27,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kidsgames.app.ui.ClayButton
+import com.kidsgames.app.ui.ClayCard
+import com.kidsgames.app.ui.GameScaffold
+import com.kidsgames.app.ui.theme.ClayColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -115,14 +117,12 @@ fun ChoiceGame(items: List<Choice>, onHome: () -> Unit) {
 
     GameScaffold(onHome = onHome, stars = stars) {
         Spacer(Modifier.height(16.dp))
-        Box(
-            Modifier
+        ClayButton(
+            onClick = { speaker.say("Toca " + target.spoken) },
+            modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .size(80.dp)
-                .clip(CircleShape)
-                .background(Color.White)
-                .clickable { speaker.say("Toca " + target.spoken) },
-            contentAlignment = Alignment.Center
+                .size(width = 88.dp, height = 94.dp),
+            color = ClayColors.Ochre,
         ) {
             Text("🔊", fontSize = 40.sp)
         }
@@ -136,27 +136,26 @@ fun ChoiceGame(items: List<Choice>, onHome: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 rowOptions.forEach { choice ->
-                    Box(
-                        Modifier
+                    ClayCard(
+                        color = ClayColors.SurfaceCard,
+                        modifier = Modifier
                             .weight(1f)
-                            .fillMaxHeight()
-                            .clip(RoundedCornerShape(28.dp))
-                            .background(Color.White)
-                            .clickable(enabled = !locked) {
-                                if (choice == target) {
-                                    locked = true
-                                    stars++
-                                    speaker.say("¡Muy bien!")
-                                    scope.launch {
-                                        delay(1200)
-                                        locked = false
-                                        round++
-                                    }
-                                } else {
-                                    speaker.say("Inténtalo otra vez")
+                            .fillMaxHeight(),
+                        enabled = !locked,
+                        onClick = {
+                            if (choice == target) {
+                                locked = true
+                                stars++
+                                speaker.say("¡Muy bien!")
+                                scope.launch {
+                                    delay(1200)
+                                    locked = false
+                                    round++
                                 }
-                            },
-                        contentAlignment = Alignment.Center
+                            } else {
+                                speaker.say("Inténtalo otra vez")
+                            }
+                        },
                     ) {
                         ChoiceVisual(choice)
                     }
