@@ -11,28 +11,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
-      - name: Build Kart Royale (MIT, pinned commit) into app assets
-        env:
-          KART_SHA: 036c0efb025f5ecf8fc31c405e9d818c61e03e21
-          PUPPETEER_SKIP_DOWNLOAD: "true"
-        run: |
-          git clone https://github.com/ryancampbell/kart-royale "$RUNNER_TEMP/kart"
-          git -C "$RUNNER_TEMP/kart" checkout "$KART_SHA"
-          cd "$RUNNER_TEMP/kart"
-          npm ci --ignore-scripts
-          npx vite build --base=./ --sourcemap false
-          if grep -qE '(src|href)="https?://' dist/index.html; then
-            echo "Kart Royale loads external resources; refusing to bundle"; exit 1
-          fi
-          dest="$GITHUB_WORKSPACE/app/src/main/assets/games/kart-royale"
-          mkdir -p "$dest"
-          cp -r dist/. "$dest/"
-          cp LICENSE "$dest/LICENSE.txt"
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
