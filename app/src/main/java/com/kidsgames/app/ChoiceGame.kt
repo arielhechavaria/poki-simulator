@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -28,6 +29,7 @@ import com.kidsgames.app.ui.ClayButton
 import com.kidsgames.app.ui.ClayCard
 import com.kidsgames.app.ui.GameScaffold
 import com.kidsgames.app.ui.theme.ClayColors
+import com.kidsgames.app.ui.theme.KidsType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -36,6 +38,10 @@ data class Choice(
     val spoken: String,
     val art: Art? = null,
     val color: Color? = null,
+    /** A letter or number drawn as big text. */
+    val text: String? = null,
+    /** What the animal says, for the sounds game. */
+    val sound: String? = null,
 )
 
 val COLOR_ITEMS = listOf(
@@ -79,9 +85,30 @@ val SHAPE_ITEMS = listOf(
     Choice("el rombo", Art.DIAMOND),
 )
 
+val VOWEL_ITEMS = listOf("A", "E", "I", "O", "U").map { Choice("la $it", text = "$it${it.lowercase()}") }
+
+val LETTER_ITEMS = listOf("A", "E", "I", "O", "U", "M", "P", "S", "L", "T", "B", "D")
+    .map { Choice("la $it", text = "$it${it.lowercase()}") }
+
+val NUMBER_ITEMS_EASY = (1..5).map { Choice("el $it", text = "$it") }
+val NUMBER_ITEMS_ALL = (1..10).map { Choice("el $it", text = "$it") }
+
+/** Animals that have a well-known sound, for the sounds game. */
+val SOUND_ITEMS = listOf(
+    Choice("el perro", Art.DOG, sound = "¡Guau, guau!"),
+    Choice("el gato", Art.CAT, sound = "¡Miau, miau!"),
+    Choice("la vaca", Art.COW, sound = "¡Muuu, muuu!"),
+    Choice("el cerdo", Art.PIG, sound = "¡Oinc, oinc!"),
+    Choice("el pollito", Art.CHICK, sound = "¡Pío, pío!"),
+    Choice("la rana", Art.FROG, sound = "¡Cruac, cruac!"),
+    Choice("el león", Art.LION, sound = "¡Roaaar!"),
+    Choice("el elefante", Art.ELEPHANT, sound = "¡Prrrrr!"),
+)
+
 @Composable
 private fun ChoiceVisual(choice: Choice) {
     when {
+        choice.text != null -> Text(choice.text, style = KidsType.number, color = ClayColors.Ink)
         choice.color != null -> ClayBall(choice.color, Modifier.size(120.dp))
         choice.art != null -> ArtImage(choice.art, Modifier.size(120.dp))
     }
@@ -93,7 +120,13 @@ private fun ChoiceVisual(choice: Choice) {
  * level 2 shows 3 and level 3 shows 4.
  */
 @Composable
-fun ChoiceGame(items: List<Choice>, level: Int, run: LevelRun, onHome: () -> Unit) {
+fun ChoiceGame(
+    items: List<Choice>,
+    level: Int,
+    run: LevelRun,
+    onHome: () -> Unit,
+    promptOf: (Choice) -> String = { "Toca " + it.spoken },
+) {
     val feedback = rememberGameFeedback()
     val scope = rememberCoroutineScope()
     var round by remember { mutableIntStateOf(0) }
@@ -106,7 +139,7 @@ fun ChoiceGame(items: List<Choice>, level: Int, run: LevelRun, onHome: () -> Uni
         (items - target).shuffled().take(optionCount - 1).plus(target).shuffled()
     }
 
-    LaunchedEffect(round) { feedback.ask("Toca " + target.spoken) }
+    LaunchedEffect(round) { feedback.ask(promptOf(target)) }
 
     GameScaffold(
         onHome = onHome,
@@ -119,7 +152,7 @@ fun ChoiceGame(items: List<Choice>, level: Int, run: LevelRun, onHome: () -> Uni
     ) {
         Spacer(Modifier.height(16.dp))
         ClayButton(
-            onClick = { feedback.ask("Toca " + target.spoken) },
+            onClick = { feedback.ask(promptOf(target)) },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .size(width = 88.dp, height = 94.dp),

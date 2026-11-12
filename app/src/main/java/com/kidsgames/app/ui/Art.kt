@@ -34,7 +34,7 @@ enum class Art {
     CAR, BALLOON,
 
     // Home tiles.
-    PALETTE, NUMBERS, CARDS,
+    PALETTE, NUMBERS, CARDS, BLOCKS, ABACUS, NOTE, CRAYON,
 
     // Collection: the daily gift and the sticker album.
     GIFT, ALBUM,
@@ -102,6 +102,10 @@ private fun DrawScope.drawArt(art: Art, tint: Color) = onGrid {
         Art.PALETTE -> palette()
         Art.NUMBERS -> numbers()
         Art.CARDS -> cards()
+        Art.BLOCKS -> blocks()
+        Art.ABACUS -> abacus()
+        Art.NOTE -> note()
+        Art.CRAYON -> crayon()
         Art.GIFT -> gift()
         Art.ALBUM -> album()
         Art.HOME -> home(tint)
@@ -553,6 +557,64 @@ private fun DrawScope.cards() {
     rotate(10f, pivot = Offset(64f, 54f)) {
         roundRect(ClayColors.SurfaceSoft, 42f, 22f, 44f, 62f, 9f)
         clayPath(ClayColors.Ochre, starPath(Offset(64f, 53f), 14f), round = 1.5f)
+    }
+}
+
+private fun DrawScope.blocks() {
+    groundShadow(36f)
+    val letterColor = ClayColors.Canvas.copy(alpha = 0.95f)
+    rotate(-8f, pivot = Offset(32f, 62f)) {
+        roundRect(ClayColors.Lavender, 8f, 36f, 46f, 46f, 9f)
+        line(letterColor, 22f, 70f, 31f, 48f, 5f)
+        line(letterColor, 31f, 48f, 40f, 70f, 5f)
+        line(letterColor, 25f, 62f, 37f, 62f, 4f)
+    }
+    rotate(9f, pivot = Offset(68f, 56f)) {
+        roundRect(ClayColors.Ochre, 46f, 20f, 46f, 46f, 9f)
+        drawCircle(letterColor, 11f, Offset(69f, 43f), style = Stroke(width = 5f))
+    }
+}
+
+private fun DrawScope.abacus() {
+    groundShadow(38f)
+    roundRect(ClayColors.SurfaceStrong, 8f, 14f, 84f, 72f, 12f)
+    val colors = listOf(ClayColors.Coral, ClayColors.Ochre, ClayColors.Mint)
+    listOf(30f, 50f, 70f).forEachIndexed { row, y ->
+        line(ClayColors.Teal, 16f, y, 84f, y, 3f)
+        repeat(row + 2) { i -> ball(colors[row], 26f + i * 14f, y, 6.5f) }
+    }
+}
+
+private fun DrawScope.note() {
+    groundShadow(30f)
+    ball(ClayColors.Pink, 36f, 72f, 15f)
+    roundRect(ClayColors.Pink, 46f, 18f, 8f, 56f, 3f)
+    clayPath(ClayColors.Pink, polygon(50f to 18f, 80f to 34f, 80f to 46f, 50f to 32f), round = 2f)
+    listOf(10f, 18f).forEach { r ->
+        drawArc(
+            color = ClayColors.Teal.copy(alpha = 0.55f),
+            startAngle = -40f,
+            sweepAngle = 80f,
+            useCenter = false,
+            topLeft = Offset(70f - r, 66f - r),
+            size = Size(2f * r, 2f * r),
+            style = Stroke(width = 3f, cap = StrokeCap.Round),
+        )
+    }
+}
+
+private fun DrawScope.crayon() {
+    groundShadow(34f)
+    // A little scribble the crayon just drew.
+    val scribble = Path().apply {
+        moveTo(14f, 84f)
+        cubicTo(26f, 70f, 34f, 92f, 46f, 80f)
+    }
+    drawPath(scribble, ClayColors.Coral, style = Stroke(width = 5f, cap = StrokeCap.Round))
+    rotate(-40f, pivot = Offset(52f, 48f)) {
+        roundRect(ClayColors.Ochre, 42f, 8f, 20f, 58f, 5f)
+        roundRect(ClayColors.Canvas.copy(alpha = 0.85f), 42f, 24f, 20f, 8f, 2f)
+        clayPath(ClayColors.Ochre, polygon(42f to 66f, 62f to 66f, 52f to 86f), round = 1.5f)
     }
 }
 

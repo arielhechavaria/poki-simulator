@@ -228,6 +228,26 @@ fun LevelPlay(
         GameId.SHAPES -> ChoiceGame(SHAPE_ITEMS, level, run, onHome)
         GameId.COUNTING -> CountingGame(level, run, onHome)
         GameId.MEMORY -> MemoryGame(level, run, onHome)
+        GameId.LETTERS -> ChoiceGame(
+            items = if (level < 3) VOWEL_ITEMS else LETTER_ITEMS,
+            level = level,
+            run = run,
+            onHome = onHome,
+            promptOf = { "Toca la letra " + it.spoken.removePrefix("la ") },
+        )
+        GameId.NUMBERS -> when (level) {
+            1 -> ChoiceGame(NUMBER_ITEMS_EASY, level, run, onHome)
+            2 -> ChoiceGame(NUMBER_ITEMS_ALL, level, run, onHome)
+            else -> OrderGame(run, onHome)
+        }
+        GameId.SOUNDS -> ChoiceGame(
+            items = SOUND_ITEMS,
+            level = level,
+            run = run,
+            onHome = onHome,
+            promptOf = { (it.sound ?: "") + " ¿Quién hace así?" },
+        )
+        GameId.TRACE -> TraceGame(level, run, onHome)
     }
 }
 
