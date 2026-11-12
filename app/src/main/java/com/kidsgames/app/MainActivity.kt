@@ -107,9 +107,7 @@ fun App() {
         key(screen, timeUp) {
             if (timeUp) {
                 TimeUpScreen(onParents = { screen = Screen.Gate })
-                return@key
-            }
-            when (val current = screen) {
+            } else when (val current = screen) {
                 Screen.Map -> AdventureMap(
                     firstVisit = !greeted,
                     onGreeted = { greeted = true },
