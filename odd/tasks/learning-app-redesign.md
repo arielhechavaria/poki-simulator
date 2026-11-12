@@ -1,8 +1,8 @@
 # learning-app-redesign
 
 Objective: turn the app into a learning-only, highly visual and gamified app for a 4-year-old.
-Branch: main (the user builds only through CI on push to main). Delivery: single-pr not applicable, direct pushes per phase.
-Test runner: none locally (no JDK/SDK); proof is the GitHub Actions build plus the user's device test.
+Branch: main (the user builds only through CI on push to main); one task per session, one or more commits per task.
+Test runner: none locally (no JDK/SDK); proof is a green GitHub Actions build plus the user's device test.
 
 ## Specs
 
@@ -12,27 +12,76 @@ Test runner: none locally (no JDK/SDK); proof is the GitHub Actions build plus t
 - S4: "Muchas más funcionalidades: nuevos juegos (letras y vocales, números, pintar y dibujar, rompecabezas, formas para encajar, sonidos de animales, rutinas, lo opuesto/tamaños), niveles progresivos, recompensas (pegatinas, estrellas), progreso guardado en el dispositivo, y una zona para padres con control de tiempo."
 - S5: "Cuidar la licencia de lo que se incluya: solo contenido propio o con licencia permisiva verificada, con créditos en el README."
 - S6: "cambiar la autoría de los commits al correo noreply de GitHub (el correo real es visible en el repo público), añadir una licencia MIT, y que la voz TTS en español funcione sin internet."
-- S7: "veo poco temas de gamificacion. vamos a construir una app de alto nivel profesional paso a paso con gran compromsio en lo visual y lo estetico. vamos a usar este aspecto visual" (Clay style reference: cream canvas `#fffaf0`, ink `#0a0a0a`, saturated cards pink `#ff4d8b`, teal `#1a3a3a`, lavender `#b8a4ed`, peach `#ffb084`, ochre `#e8b94a`, mint `#a4d4c5`, coral `#ff6b5a`; radius up to 24; claymation look.)
+- S7: "veo poco temas de gamificacion. vamos a construir una app de alto nivel profesional paso a paso con gran compromsio en lo visual y lo estetico. vamos a usar este aspecto visual" followed by the Clay style reference.
 
-Assumptions (not user requirements): the Clay reference is used as a palette and shape language only,
-never its name, logo or artwork; its proprietary display font is replaced by an OFL rounded font;
-its web type sizes are scaled up for a 4-year-old.
+### Visual direction (from the Clay reference in S7)
+
+- Colors: canvas `#fffaf0`, surface soft `#faf5e8`, surface card `#f5f0e0`, surface strong `#ebe6d6`,
+  ink `#0a0a0a`, body `#3a3a3a`, muted `#6a6a6a`, hairline `#e5e5e5`, dark surface `#0a1a1a`;
+  brand pink `#ff4d8b`, teal `#1a3a3a`, lavender `#b8a4ed`, peach `#ffb084`, ochre `#e8b94a`,
+  mint `#a4d4c5`, coral `#ff6b5a`; success `#22c55e`, warning `#f59e0b`, error `#ef4444`.
+  No colors outside this set.
+- Shape: radius 6/8/12/16/24 and pill; spacing 4/8/12/16/24/32/48; card padding 24-32.
+- Look: cream canvas, one saturated color per card, ink-colored primary buttons, claymation feel.
+
+Assumptions (not user requirements): the reference gives palette and shape language only, never
+Clay's name, logo or artwork. Its paid display font is replaced by a rounded OFL font. Its web type
+sizes are scaled up for a 4-year-old (touch targets of at least 64dp). The clay look is drawn in
+Canvas with gradients, highlights and soft shadows, not real 3D renders.
 
 ## Tasks
 
-- [x] T1 (S1, S6 license) inline — remove the fun section, add MIT license. Commit: see Log.
-- [ ] T2 (S6 authorship) inline — noreply for new commits is set; history rewrite pending the user's decision.
-- [ ] T3 (S3, S7) inline — design system: tokens, type, clay surfaces, mascot, motion, sounds, app icon; migrate the 6 games.
-- [ ] T4 (S4, S7) inline — gamification core: saved progress, stars, levels, stickers, daily streak, mascot growth.
-- [ ] T5 (S4) inline — new games, batch A: vowels/letters, numbers, animal sounds.
-- [ ] T6 (S4) inline — new games, batch B: paint, puzzles, shape sorting.
-- [ ] T7 (S4) inline — new games, batch C: routines, opposites/sizes.
-- [ ] T8 (S4, S6 voice) inline — parents area: gate, time limit, Spanish voice check.
+Suggested model in brackets. Briefs are under "Task briefs".
+
+- [x] T1 (S1, S6 license) inline — remove the fun section, add MIT license. Commit 9aa977a, CI green.
+- [x] T2 (S6 authorship) inline — noreply email set for new commits; history left as is by user decision (L4).
+- [ ] T3 (S3, S7) inline [opus] — design system foundation and restyled home.
+- [ ] T4 (S3, S7) inline [sonnet] — mascot, celebrations and sounds.
+- [ ] T5 (S3, S5) inline [sonnet] — own illustrations for the 6 games and app icon.
+- [ ] T6 (S4, S7) inline [opus] — saved progress, stars, progressive levels, adventure-map home.
+- [ ] T7 (S4, S7) inline [sonnet] — sticker album, mascot accessories, soft daily streak.
+- [ ] T8 (S4) inline [sonnet] — new games A: vowels and letters, numbers, animal sounds.
+- [ ] T9 (S4) inline [sonnet] — new games B: paint and draw, puzzles, shape sorting.
+- [ ] T10 (S4) inline [sonnet] — new games C: routines, opposites and sizes.
+- [ ] T11 (S4, S6 voice) inline [sonnet] — parents area: gate, time limit, Spanish voice check.
+- [ ] T12 (S5) inline [sonnet] — README, credits, version bump and release v1.0.0.
+
+## Task briefs
+
+Every task ends the same way: push, green CI run, tick the task, one Log line, hand over the next prompt.
+
+- T3: load the `frontend-design` skill first. Add a `ui/theme` package with color, shape, spacing and
+  type tokens from "Visual direction". Bundle one rounded OFL font in `res/font` (verify the license
+  at its source, keep its license file, credit it in the README). Build the shared pieces:
+  clay card and clay button with a press-bounce, gradient canvas background, new `GameScaffold`
+  (home button, star counter). Restyle the home grid with them. Emojis may stay for now.
+- T4: draw a mascot in Canvas with idle, talking and cheering states; it greets on home and reacts
+  to right and wrong answers (wrong = gentle encouragement). Add confetti and star-burst effects and
+  short sound effects synthesized in code (no audio files). Wire them into the three game engines.
+- T5: replace the emojis in colors, animals, fruits, shapes, counting and memory with Canvas or
+  vector illustrations in the clay look. Add an adaptive launcher icon and review the app name.
+- T6: persist progress on the device (DataStore). Each round gives 1 to 3 stars, never zero.
+  Each game raises difficulty by level (2, then 3, then 4 choices; larger counts; more pairs).
+  Replace the home grid with an adventure-map path of worlds that unlock with stars.
+- T7: sticker album (one sticker per completed level, with an opening animation), mascot accessories
+  unlocked with stars, and a daily gift for playing with no penalty for missed days.
+- T8: vowels and letters (hear and pick, trace the letter), numbers 1 to 10 (recognize and order),
+  animal sounds (hear and pick; sounds synthesized or recorded by the user, else TTS onomatopoeia).
+- T9: free painting with brushes and stamps plus coloring outlines, 4 to 9 piece puzzles from the
+  app's own illustrations, and drag-to-fit shape sorting.
+- T10: daily routines (order 3 to 4 steps: wake up, brush teeth...), opposites and sizes
+  (big/small, up/down, many/few).
+- T11: parents area behind a gate a 4-year-old cannot pass (hold plus a simple sum), daily time limit
+  with a friendly goodbye from the mascot, progress summary and reset, and a check that the Spanish
+  voice is installed with a shortcut to the system install screen.
+- T12: final README with screenshots list and credits, `versionCode`/`versionName` bump, release.
 
 ## Log
 
-- L1 (2026-11-12): original request, quoted in S1-S6 above verbatim; it also set the working rules:
-  build only through GitHub Actions, conventional commits without Co-Authored-By, UI in Spanish, code in English.
-- L2 (2026-11-12): user correction, quoted in S7. Gamification added as its own task (T4) and the Clay
-  reference adopted as the visual direction.
-- L3 (2026-11-12): T1 done. Local git email switched to the GitHub noreply address for new commits.
+- L1 (2026-11-12): original request, quoted in S1-S6 verbatim; it also set the working rules now in `CLAUDE.md`.
+- L2 (2026-11-12): user correction, quoted in S7. Gamification added (T6, T7); Clay reference adopted.
+- L3 (2026-11-12): T1 done in 9aa977a, CI green. Local git email switched to the GitHub noreply address.
+- L4 (2026-11-12): user decision on history: "déjalos como están y sigue con la base visual. para evitar
+  pasarnos del contexto podemos definir un plan de trabajo y los prompts por cada tarea. Asi hacemos cada
+  tarea en una section. clear y seguimos para la otra." T2 closed; T3 split into T3-T5; one task per session.
+- Engram mirror pending: the memory save was blocked in auto mode, so this file is the source of truth.
