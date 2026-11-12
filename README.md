@@ -8,6 +8,10 @@ No ads, no tracking, and the app declares no INTERNET permission.
 Colors, animals, fruits, shapes, counting and memory pairs. All of them are native
 Compose screens with Spanish voice prompts and no "you lost" screens.
 
+A mascot drawn in Canvas greets on the home screen and reacts to every answer: it cheers
+with a star burst or confetti when the child gets it right and gently encourages another
+try otherwise. The sound effects are synthesized in code, so the app ships no audio files.
+
 ## Build
 
 GitHub Actions builds the APK (`.github/workflows/build.yml`); download the

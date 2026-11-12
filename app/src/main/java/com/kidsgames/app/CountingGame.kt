@@ -33,7 +33,7 @@ private val COUNT_EMOJIS = listOf("🍎", "⭐", "🐟", "🚗", "🎈", "🐥")
 /** Shows 1-9 objects; the child taps the matching number. */
 @Composable
 fun CountingGame(onHome: () -> Unit) {
-    val speaker = rememberSpeaker()
+    val feedback = rememberGameFeedback()
     val scope = rememberCoroutineScope()
     var round by remember { mutableIntStateOf(0) }
     var stars by remember { mutableIntStateOf(0) }
@@ -45,9 +45,15 @@ fun CountingGame(onHome: () -> Unit) {
         (1..9).filter { it != count }.shuffled().take(2).plus(count).shuffled()
     }
 
-    LaunchedEffect(round) { speaker.say("¿Cuántos hay?") }
+    LaunchedEffect(round) { feedback.ask("¿Cuántos hay?") }
 
-    GameScaffold(onHome = onHome, stars = stars) {
+    GameScaffold(
+        onHome = onHome,
+        stars = stars,
+        mood = feedback.mood,
+        starBursts = feedback.starBursts,
+        confettiShots = feedback.confettiShots,
+    ) {
         Column(
             Modifier
                 .weight(1f)
@@ -78,14 +84,14 @@ fun CountingGame(onHome: () -> Unit) {
                         if (number == count) {
                             locked = true
                             stars++
-                            speaker.say("$count. ¡Muy bien!")
+                            feedback.right("$count. ¡Muy bien!")
                             scope.launch {
                                 delay(1500)
                                 locked = false
                                 round++
                             }
                         } else {
-                            speaker.say("Inténtalo otra vez")
+                            feedback.wrong()
                         }
                     },
                 ) {

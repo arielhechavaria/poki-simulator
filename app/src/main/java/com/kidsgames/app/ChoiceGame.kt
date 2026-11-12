@@ -102,7 +102,7 @@ private fun ChoiceVisual(choice: Choice) {
  */
 @Composable
 fun ChoiceGame(items: List<Choice>, onHome: () -> Unit) {
-    val speaker = rememberSpeaker()
+    val feedback = rememberGameFeedback()
     val scope = rememberCoroutineScope()
     var round by remember { mutableIntStateOf(0) }
     var stars by remember { mutableIntStateOf(0) }
@@ -113,12 +113,18 @@ fun ChoiceGame(items: List<Choice>, onHome: () -> Unit) {
         (items - target).shuffled().take(3).plus(target).shuffled()
     }
 
-    LaunchedEffect(round) { speaker.say("Toca " + target.spoken) }
+    LaunchedEffect(round) { feedback.ask("Toca " + target.spoken) }
 
-    GameScaffold(onHome = onHome, stars = stars) {
+    GameScaffold(
+        onHome = onHome,
+        stars = stars,
+        mood = feedback.mood,
+        starBursts = feedback.starBursts,
+        confettiShots = feedback.confettiShots,
+    ) {
         Spacer(Modifier.height(16.dp))
         ClayButton(
-            onClick = { speaker.say("Toca " + target.spoken) },
+            onClick = { feedback.ask("Toca " + target.spoken) },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .size(width = 88.dp, height = 94.dp),
@@ -146,14 +152,14 @@ fun ChoiceGame(items: List<Choice>, onHome: () -> Unit) {
                             if (choice == target) {
                                 locked = true
                                 stars++
-                                speaker.say("¡Muy bien!")
+                                feedback.right("¡Muy bien!")
                                 scope.launch {
                                     delay(1200)
                                     locked = false
                                     round++
                                 }
                             } else {
-                                speaker.say("Inténtalo otra vez")
+                                feedback.wrong()
                             }
                         },
                     ) {

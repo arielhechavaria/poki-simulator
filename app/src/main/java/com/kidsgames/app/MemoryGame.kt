@@ -28,7 +28,7 @@ private val MEMORY_EMOJIS = listOf("🐶", "🐱", "🐸", "🐥", "🍎", "🍌
 /** Find the pairs: 3 pairs (6 cards) keeps it easy for a 4-year-old. */
 @Composable
 fun MemoryGame(onHome: () -> Unit) {
-    val speaker = rememberSpeaker()
+    val feedback = rememberGameFeedback()
     var round by remember { mutableIntStateOf(0) }
     var stars by remember { mutableIntStateOf(0) }
 
@@ -44,7 +44,10 @@ fun MemoryGame(onHome: () -> Unit) {
             delay(900)
             if (cards[faceUp[0]] == cards[faceUp[1]]) {
                 matched.addAll(faceUp.toList())
-                speaker.say("¡Muy bien!")
+                // The last pair is celebrated by the win effect below instead.
+                if (matched.size < cards.size) feedback.right("¡Muy bien!")
+            } else {
+                feedback.miss()
             }
             faceUp.clear()
         }
@@ -53,11 +56,17 @@ fun MemoryGame(onHome: () -> Unit) {
     LaunchedEffect(won) {
         if (won) {
             stars++
-            speaker.say("¡Lo lograste!")
+            feedback.win("¡Lo lograste!")
         }
     }
 
-    GameScaffold(onHome = onHome, stars = stars) {
+    GameScaffold(
+        onHome = onHome,
+        stars = stars,
+        mood = feedback.mood,
+        starBursts = feedback.starBursts,
+        confettiShots = feedback.confettiShots,
+    ) {
         cards.indices.toList().chunked(3).forEach { rowIndices ->
             Row(
                 Modifier
@@ -75,6 +84,7 @@ fun MemoryGame(onHome: () -> Unit) {
                             .fillMaxHeight(),
                         onClick = {
                             if (!won && faceUp.size < 2 && index !in faceUp && index !in matched) {
+                                feedback.tap()
                                 faceUp.add(index)
                             }
                         },

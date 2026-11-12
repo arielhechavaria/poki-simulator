@@ -3,6 +3,7 @@ package com.kidsgames.app.ui
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -25,30 +26,42 @@ import com.kidsgames.app.ui.theme.KidsType
 import com.kidsgames.app.ui.theme.Radius
 import com.kidsgames.app.ui.theme.Space
 
-/** Common game frame: big home button on the left, star counter on the right. */
+/**
+ * Common game frame: big home button on the left, the mascot in the middle and the star
+ * counter on the right, with the celebration effects drawn over everything.
+ */
 @Composable
 fun GameScaffold(
     onHome: () -> Unit,
     stars: Int,
+    mood: MascotMood = MascotMood.IDLE,
+    starBursts: Int = 0,
+    confettiShots: Int = 0,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(Space.md)
-    ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+    Box(Modifier.fillMaxSize()) {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(Space.md)
         ) {
-            // 6dp taller than wide: the lip sits below a round body.
-            ClayButton(onClick = onHome, modifier = Modifier.size(width = 72.dp, height = 78.dp)) {
-                Text("🏠", fontSize = 32.sp)
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 6dp taller than wide: the lip sits below a round body.
+                ClayButton(onClick = onHome, modifier = Modifier.size(width = 72.dp, height = 78.dp)) {
+                    Text("🏠", fontSize = 32.sp)
+                }
+                Spacer(Modifier.weight(1f))
+                Mascot(mood = mood, modifier = Modifier.size(92.dp))
+                Spacer(Modifier.weight(1f))
+                StarCounter(stars)
             }
-            Spacer(Modifier.weight(1f))
-            StarCounter(stars)
+            content()
         }
-        content()
+        // On top of the game, but it never takes touches.
+        CelebrationOverlay(starBursts = starBursts, confettiShots = confettiShots)
     }
 }
 

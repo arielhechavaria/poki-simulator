@@ -36,8 +36,8 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 // Shades stay inside the palette: every tone is a mix of a palette color with ink or canvas.
-private fun Color.shade(amount: Float) = lerp(this, ClayColors.Ink, amount)
-private fun Color.tint(amount: Float) = lerp(this, ClayColors.Canvas, amount)
+internal fun Color.shade(amount: Float) = lerp(this, ClayColors.Ink, amount)
+internal fun Color.tint(amount: Float) = lerp(this, ClayColors.Canvas, amount)
 
 /**
  * A lump of clay: a body sitting on a darker lip that gives it thickness, with a soft
