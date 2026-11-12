@@ -36,7 +36,7 @@ Suggested model in brackets. Briefs are under "Task briefs".
 - [x] T1 (S1, S6 license) inline — remove the fun section, add MIT license. Commit 9aa977a, CI green.
 - [x] T2 (S6 authorship) inline — noreply email set for new commits; history left as is by user decision (L4).
 - [x] T3 (S3, S7) inline [opus] — design system foundation and restyled home. Commit 2535bfe, CI green.
-- [ ] T4 (S3, S7) inline [sonnet] — mascot, celebrations and sounds.
+- [x] T4 (S3, S7) inline [sonnet] — mascot, celebrations and sounds. Commit 09e000b, CI green.
 - [ ] T5 (S3, S5) inline [sonnet] — own illustrations for the 6 games and app icon.
 - [ ] T6 (S4, S7) inline [opus] — saved progress, stars, progressive levels, adventure-map home.
 - [ ] T7 (S4, S7) inline [sonnet] — sticker album, mascot accessories, soft daily streak.
@@ -88,4 +88,9 @@ Every task ends the same way: push, green CI run, tick the task, one Log line, h
   (OFL 1.1, static Regular and ExtraBold from google/fonts). Tokens in `ui/theme`, `ClaySurface`/`ClayCard`/
   `ClayButton`/`ClayBackground` in `ui/Clay.kt`, `GameScaffold` and `StarCounter` in `ui/GameScaffold.kt`.
   The three games already use the clay cards; emojis stay until T5.
+- L6 (2026-11-12): T4 done in 09e000b, CI run 43238635012 green; device test pending (look, sound
+  volume and timing were never seen or heard, only compiled). `Mascot` and `MascotMood` in `ui/Mascot.kt`,
+  `CelebrationOverlay` and `starPath` in `ui/Effects.kt`, `Sfx`/`LocalSfx` (static `AudioTrack` tones) in
+  `Sfx.kt`, and `GameFeedback` in `Feedback.kt`, which the three engines call (`ask`, `right`, `wrong`,
+  `miss`, `win`, `tap`). New games should reuse `rememberGameFeedback()` and `GameScaffold`.
 - Engram mirror pending: the memory save was blocked in auto mode, so this file is the source of truth.
