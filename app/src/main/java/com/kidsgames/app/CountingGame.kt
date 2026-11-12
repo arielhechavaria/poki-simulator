@@ -32,29 +32,40 @@ import kotlin.random.Random
 private val NUMBER_COLORS = listOf(ClayColors.Mint, ClayColors.Peach, ClayColors.Lavender)
 private val COUNT_ART = listOf(Art.APPLE, Art.STAR, Art.FISH, Art.CAR, Art.BALLOON, Art.CHICK)
 
-/** Shows 1-9 objects; the child taps the matching number. */
+/** Highest count and number of answer buttons for each level. */
+private fun countingSetup(level: Int): Pair<Int, Int> = when (level) {
+    1 -> 3 to 2
+    2 -> 5 to 3
+    else -> 9 to 3
+}
+
+/** Shows some objects; the child taps the matching number. Counts grow with the level. */
 @Composable
-fun CountingGame(onHome: () -> Unit) {
+fun CountingGame(level: Int, run: LevelRun, onHome: () -> Unit) {
     val feedback = rememberGameFeedback()
     val scope = rememberCoroutineScope()
     var round by remember { mutableIntStateOf(0) }
-    var stars by remember { mutableIntStateOf(0) }
     var locked by remember { mutableStateOf(false) }
+    var mistakes by remember(round) { mutableIntStateOf(0) }
+    val (maxCount, optionCount) = countingSetup(level)
 
-    val count = remember(round) { Random.nextInt(1, 10) }
+    val count = remember(round) { Random.nextInt(1, maxCount + 1) }
     val art = remember(round) { COUNT_ART.random() }
     val options = remember(round) {
-        (1..9).filter { it != count }.shuffled().take(2).plus(count).shuffled()
+        // Wrong answers come from just past the range too, so 3 is not always the biggest.
+        (1..maxCount + 1).filter { it != count }.shuffled().take(optionCount - 1).plus(count).shuffled()
     }
 
     LaunchedEffect(round) { feedback.ask("¿Cuántos hay?") }
 
     GameScaffold(
         onHome = onHome,
-        stars = stars,
+        stars = LocalProgress.current.totalStars,
         mood = feedback.mood,
         starBursts = feedback.starBursts,
         confettiShots = feedback.confettiShots,
+        roundsDone = run.roundsDone,
+        roundsTotal = run.rounds,
     ) {
         Column(
             Modifier
@@ -85,14 +96,16 @@ fun CountingGame(onHome: () -> Unit) {
                     onClick = {
                         if (number == count) {
                             locked = true
-                            stars++
+                            val paid = starsForMistakes(mistakes)
                             feedback.right("$count. ¡Muy bien!")
                             scope.launch {
                                 delay(1500)
+                                run.finishRound(paid)
                                 locked = false
                                 round++
                             }
                         } else {
+                            mistakes++
                             feedback.wrong()
                         }
                     },

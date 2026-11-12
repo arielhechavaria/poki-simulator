@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -90,29 +89,33 @@ private fun ChoiceVisual(choice: Choice) {
 
 /**
  * Generic "find the one the voice asks for" game. Colours, animals, fruits and
- * shapes all reuse it by passing a different item list.
+ * shapes all reuse it by passing a different item list. Level 1 shows 2 options,
+ * level 2 shows 3 and level 3 shows 4.
  */
 @Composable
-fun ChoiceGame(items: List<Choice>, onHome: () -> Unit) {
+fun ChoiceGame(items: List<Choice>, level: Int, run: LevelRun, onHome: () -> Unit) {
     val feedback = rememberGameFeedback()
     val scope = rememberCoroutineScope()
     var round by remember { mutableIntStateOf(0) }
-    var stars by remember { mutableIntStateOf(0) }
     var locked by remember { mutableStateOf(false) }
+    var mistakes by remember(round) { mutableIntStateOf(0) }
+    val optionCount = (level + 1).coerceIn(2, 4)
 
     val target = remember(round) { items.random() }
     val options = remember(round) {
-        (items - target).shuffled().take(3).plus(target).shuffled()
+        (items - target).shuffled().take(optionCount - 1).plus(target).shuffled()
     }
 
     LaunchedEffect(round) { feedback.ask("Toca " + target.spoken) }
 
     GameScaffold(
         onHome = onHome,
-        stars = stars,
+        stars = LocalProgress.current.totalStars,
         mood = feedback.mood,
         starBursts = feedback.starBursts,
         confettiShots = feedback.confettiShots,
+        roundsDone = run.roundsDone,
+        roundsTotal = run.rounds,
     ) {
         Spacer(Modifier.height(16.dp))
         ClayButton(
@@ -133,6 +136,8 @@ fun ChoiceGame(items: List<Choice>, onHome: () -> Unit) {
                     .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                // A lone card keeps the same width as the others, centred.
+                if (rowOptions.size == 1) Spacer(Modifier.weight(0.5f))
                 rowOptions.forEach { choice ->
                     ClayCard(
                         color = ClayColors.SurfaceCard,
@@ -143,14 +148,16 @@ fun ChoiceGame(items: List<Choice>, onHome: () -> Unit) {
                         onClick = {
                             if (choice == target) {
                                 locked = true
-                                stars++
+                                val paid = starsForMistakes(mistakes)
                                 feedback.right("¡Muy bien!")
                                 scope.launch {
                                     delay(1200)
+                                    run.finishRound(paid)
                                     locked = false
                                     round++
                                 }
                             } else {
+                                mistakes++
                                 feedback.wrong()
                             }
                         },
@@ -158,6 +165,7 @@ fun ChoiceGame(items: List<Choice>, onHome: () -> Unit) {
                         ChoiceVisual(choice)
                     }
                 }
+                if (rowOptions.size == 1) Spacer(Modifier.weight(0.5f))
             }
         }
     }

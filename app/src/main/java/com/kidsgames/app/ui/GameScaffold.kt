@@ -3,6 +3,8 @@ package com.kidsgames.app.ui
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -13,12 +15,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +42,8 @@ fun GameScaffold(
     mood: MascotMood = MascotMood.IDLE,
     starBursts: Int = 0,
     confettiShots: Int = 0,
+    roundsDone: Int = 0,
+    roundsTotal: Int = 0,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Box(Modifier.fillMaxSize()) {
@@ -59,10 +65,43 @@ fun GameScaffold(
                 Spacer(Modifier.weight(1f))
                 StarCounter(stars)
             }
+            if (roundsTotal > 0) {
+                RoundTrail(
+                    done = roundsDone,
+                    total = roundsTotal,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = Space.xs),
+                )
+            }
             content()
         }
         // On top of the game, but it never takes touches.
         CelebrationOverlay(starBursts = starBursts, confettiShots = confettiShots)
+    }
+}
+
+/** One slot per round of the level: a star for each round played, a soft dot for the rest. */
+@Composable
+fun RoundTrail(done: Int, total: Int, modifier: Modifier = Modifier) {
+    Row(
+        modifier,
+        horizontalArrangement = Arrangement.spacedBy(Space.xs),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        repeat(total) { index ->
+            if (index < done) {
+                ArtImage(Art.STAR, Modifier.size(30.dp))
+            } else {
+                Box(
+                    Modifier
+                        .size(30.dp)
+                        .padding(Space.xs)
+                        .clip(CircleShape)
+                        .background(ClayColors.SurfaceStrong)
+                )
+            }
+        }
     }
 }
 

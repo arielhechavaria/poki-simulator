@@ -12,6 +12,10 @@ A mascot drawn in Canvas greets on the home screen and reacts to every answer: i
 with a star burst or confetti when the child gets it right and gently encourages another
 try otherwise. The sound effects are synthesized in code, so the app ships no audio files.
 
+The home screen is an adventure map: each game is a world that opens with stars, and each
+world has three levels that get harder (more choices, bigger counts, more pairs). Every
+round pays 1 to 3 stars, never zero. Progress is saved on the device with Jetpack DataStore.
+
 ## Build
 
 GitHub Actions builds the APK (`.github/workflows/build.yml`); download the

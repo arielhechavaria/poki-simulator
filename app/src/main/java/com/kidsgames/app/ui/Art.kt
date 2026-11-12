@@ -37,7 +37,7 @@ enum class Art {
     PALETTE, NUMBERS, CARDS,
 
     // Interface icons; these take the tint passed to [ArtImage].
-    HOME, SPEAKER, REPLAY,
+    HOME, SPEAKER, REPLAY, LOCK, NEXT,
 }
 
 /** Draws [art] filling the smaller side of the box. [tint] only affects the interface icons. */
@@ -102,6 +102,8 @@ private fun DrawScope.drawArt(art: Art, tint: Color) = onGrid {
         Art.HOME -> home(tint)
         Art.SPEAKER -> speaker(tint)
         Art.REPLAY -> replay(tint)
+        Art.LOCK -> lock(tint)
+        Art.NEXT -> next(tint)
     }
 }
 
@@ -574,4 +576,21 @@ private fun DrawScope.replay(tint: Color) {
     drawArc(tint, startAngle = -60f, sweepAngle = 300f, useCenter = false, topLeft = Offset(16f, 16f), size = Size(68f, 68f), style = arc)
     // Arrow head where the circle ends (top left), pointing along the clockwise direction.
     drawPath(polygon(52f to 16f, 28f to 14f, 41f to 38f), tint)
+}
+
+private fun DrawScope.lock(tint: Color) {
+    val shackle = Stroke(width = 11f, cap = StrokeCap.Round)
+    drawArc(tint, startAngle = 180f, sweepAngle = 180f, useCenter = false, topLeft = Offset(30f, 12f), size = Size(40f, 40f), style = shackle)
+    drawLine(tint, Offset(30f, 32f), Offset(30f, 46f), strokeWidth = 11f)
+    drawLine(tint, Offset(70f, 32f), Offset(70f, 46f), strokeWidth = 11f)
+    roundRect(tint, 16f, 44f, 68f, 48f, 12f)
+    drawCircle(ClayColors.Canvas, 7f, Offset(50f, 63f))
+    roundRect(ClayColors.Canvas, 46f, 64f, 8f, 16f, 3f)
+}
+
+/** A rounded "play" arrow pointing right. */
+private fun DrawScope.next(tint: Color) {
+    val arrow = polygon(32f to 18f, 82f to 50f, 32f to 82f)
+    drawPath(arrow, tint)
+    drawPath(arrow, tint, style = Stroke(width = 12f, join = StrokeJoin.Round))
 }

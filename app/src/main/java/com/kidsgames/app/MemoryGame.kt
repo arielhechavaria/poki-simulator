@@ -3,10 +3,9 @@ package com.kidsgames.app
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -19,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kidsgames.app.ui.Art
 import com.kidsgames.app.ui.ArtImage
-import com.kidsgames.app.ui.ClayButton
 import com.kidsgames.app.ui.ClayCard
 import com.kidsgames.app.ui.GameScaffold
 import com.kidsgames.app.ui.theme.ClayColors
@@ -28,18 +26,28 @@ import kotlinx.coroutines.delay
 
 private val MEMORY_ART = listOf(Art.DOG, Art.CAT, Art.FROG, Art.CHICK, Art.APPLE, Art.BANANA, Art.CAR, Art.STAR)
 
-/** Find the pairs: 3 pairs (6 cards) keeps it easy for a 4-year-old. */
+/** Board stars: few misses for its size pay 3, a few more pay 2, and any finish pays 1. */
+private fun starsForMisses(misses: Int, pairs: Int): Int = when {
+    misses <= pairs -> 3
+    misses <= pairs * 2 -> 2
+    else -> 1
+}
+
+/** Find the pairs: 2 pairs on level 1, 3 on level 2 and 4 on level 3. */
 @Composable
-fun MemoryGame(onHome: () -> Unit) {
+fun MemoryGame(level: Int, run: LevelRun, onHome: () -> Unit) {
     val feedback = rememberGameFeedback()
     var round by remember { mutableIntStateOf(0) }
-    var stars by remember { mutableIntStateOf(0) }
+    val pairs = (level + 1).coerceIn(2, 4)
+    // Six cards fit best in rows of three; four and eight in rows of two.
+    val columns = if (pairs == 3) 3 else 2
 
     val cards = remember(round) {
-        MEMORY_ART.shuffled().take(3).let { picked -> (picked + picked).shuffled() }
+        MEMORY_ART.shuffled().take(pairs).let { picked -> (picked + picked).shuffled() }
     }
     val faceUp = remember(round) { mutableStateListOf<Int>() }
     val matched = remember(round) { mutableStateListOf<Int>() }
+    var misses by remember(round) { mutableIntStateOf(0) }
     val won = matched.size == cards.size
 
     LaunchedEffect(faceUp.size) {
@@ -50,27 +58,32 @@ fun MemoryGame(onHome: () -> Unit) {
                 // The last pair is celebrated by the win effect below instead.
                 if (matched.size < cards.size) feedback.right("¡Muy bien!")
             } else {
+                misses++
                 feedback.miss()
             }
             faceUp.clear()
         }
     }
 
-    LaunchedEffect(won) {
+    LaunchedEffect(won, round) {
         if (won) {
-            stars++
             feedback.win("¡Lo lograste!")
+            delay(2200)
+            run.finishRound(starsForMisses(misses, pairs))
+            round++
         }
     }
 
     GameScaffold(
         onHome = onHome,
-        stars = stars,
+        stars = LocalProgress.current.totalStars,
         mood = feedback.mood,
         starBursts = feedback.starBursts,
         confettiShots = feedback.confettiShots,
+        roundsDone = run.roundsDone,
+        roundsTotal = run.rounds,
     ) {
-        cards.indices.toList().chunked(3).forEach { rowIndices ->
+        cards.indices.toList().chunked(columns).forEach { rowIndices ->
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -93,22 +106,12 @@ fun MemoryGame(onHome: () -> Unit) {
                         },
                     ) {
                         if (visible) {
-                            ArtImage(cards[index], Modifier.size(80.dp))
+                            ArtImage(cards[index], Modifier.fillMaxSize(0.75f))
                         } else {
                             Text("?", style = KidsType.number, color = ClayColors.Canvas)
                         }
                     }
                 }
-            }
-        }
-        if (won) {
-            ClayButton(
-                onClick = { round++ },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(96.dp),
-            ) {
-                ArtImage(Art.REPLAY, Modifier.size(52.dp), tint = ClayColors.Canvas)
             }
         }
     }
