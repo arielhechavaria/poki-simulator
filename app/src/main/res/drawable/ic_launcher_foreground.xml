@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Ground shadow. -->
+    <path
+        android:fillColor="#26000000"
+        android:pathData="M54,84m-22,0a22,4 0,1 1,44 0a22,4 0,1 1,-44 0" />
+    <!-- Feet. -->
+    <path
+        android:fillColor="#FF8A7BB8"
+        android:pathData="M36,80m-8,0a8,5 0,1 1,16 0a8,5 0,1 1,-16 0" />
+    <path
+        android:fillColor="#FF8A7BB8"
+        android:pathData="M72,80m-8,0a8,5 0,1 1,16 0a8,5 0,1 1,-16 0" />
+    <!-- Sprout. -->
+    <path
+        android:strokeColor="#FF6FA896"
+        android:strokeWidth="2.4"
+        android:strokeLineCap="round"
+        android:pathData="M54,34L54,24" />
+    <path
+        android:fillColor="#FFA4D4C5"
+        android:pathData="M54,25C48,18 42,19 40,22C44,28 50,28 54,25z" />
+    <path
+        android:fillColor="#FF8CBFAE"
+        android:pathData="M54,25C60,18 66,19 68,22C64,28 58,28 54,25z" />
+    <!-- Body, lit from the top left like the in-app mascot. -->
+    <path
+        android:pathData="M32,58a22,25 0,1 1,44 0a22,25 0,1 1,-44 0z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="radial"
+                android:centerX="46"
+                android:centerY="46"
+                android:gradientRadius="40">
+                <item
+                    android:color="#FFDCD2F7"
+                    android:offset="0" />
+                <item
+                    android:color="#FFB8A4ED"
+                    android:offset="0.55" />
+                <item
+                    android:color="#FF8A7BB8"
+                    android:offset="1" />
+            </gradient>
+        </aapt:attr>
+    </path>
+    <!-- Belly. -->
+    <path
+        android:fillColor="#73FFFAF0"
+        android:pathData="M42,70a12,8 0,1 1,24 0a12,8 0,1 1,-24 0z" />
+    <!-- Cheeks. -->
+    <path
+        android:fillColor="#80FF4D8B"
+        android:pathData="M39,63m-4.5,0a4.5,4.5 0,1 1,9 0a4.5,4.5 0,1 1,-9 0" />
+    <path
+        android:fillColor="#80FF4D8B"
+        android:pathData="M69,63m-4.5,0a4.5,4.5 0,1 1,9 0a4.5,4.5 0,1 1,-9 0" />
+    <!-- Eyes. -->
+    <path
+        android:fillColor="#FF0A0A0A"
+        android:pathData="M45,55m-4.2,0a4.2,4.2 0,1 1,8.4 0a4.2,4.2 0,1 1,-8.4 0" />
+    <path
+        android:fillColor="#FF0A0A0A"
+        android:pathData="M63,55m-4.2,0a4.2,4.2 0,1 1,8.4 0a4.2,4.2 0,1 1,-8.4 0" />
+    <path
+        android:fillColor="#FFFFFAF0"
+        android:pathData="M43.8,53.6m-1.4,0a1.4,1.4 0,1 1,2.8 0a1.4,1.4 0,1 1,-2.8 0" />
+    <path
+        android:fillColor="#FFFFFAF0"
+        android:pathData="M61.8,53.6m-1.4,0a1.4,1.4 0,1 1,2.8 0a1.4,1.4 0,1 1,-2.8 0" />
+    <!-- Smile. -->
+    <path
+        android:strokeColor="#FF0A0A0A"
+        android:strokeWidth="2.2"
+        android:strokeLineCap="round"
+        android:pathData="M49,63Q54,69 59,63" />
+</vector>

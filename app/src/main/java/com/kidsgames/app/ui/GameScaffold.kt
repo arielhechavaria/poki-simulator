@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,7 +52,7 @@ fun GameScaffold(
             ) {
                 // 6dp taller than wide: the lip sits below a round body.
                 ClayButton(onClick = onHome, modifier = Modifier.size(width = 72.dp, height = 78.dp)) {
-                    Text("🏠", fontSize = 32.sp)
+                    ArtImage(Art.HOME, Modifier.size(36.dp), tint = ClayColors.Canvas)
                 }
                 Spacer(Modifier.weight(1f))
                 Mascot(mood = mood, modifier = Modifier.size(92.dp))
@@ -90,11 +91,13 @@ fun StarCounter(stars: Int, modifier: Modifier = Modifier) {
         cornerRadius = Radius.pill,
         depth = 6.dp,
     ) {
-        Text(
-            text = "⭐ $stars",
-            style = KidsType.title,
-            color = ClayColors.Canvas,
-            modifier = Modifier.padding(horizontal = Space.lg, vertical = Space.sm),
-        )
+        Row(
+            Modifier.padding(horizontal = Space.lg, vertical = Space.sm),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ArtImage(Art.STAR, Modifier.size(28.dp))
+            Spacer(Modifier.width(Space.xs))
+            Text(text = "$stars", style = KidsType.title, color = ClayColors.Canvas)
+        }
     }
 }

@@ -36,6 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kidsgames.app.ui.Art
+import com.kidsgames.app.ui.ArtImage
 import com.kidsgames.app.ui.ClayBackground
 import com.kidsgames.app.ui.ClayCard
 import com.kidsgames.app.ui.Mascot
@@ -69,18 +71,18 @@ enum class GameId { COLORS, ANIMALS, FRUITS, SHAPES, COUNTING, MEMORY }
 
 private data class Tile(
     val label: String,
-    val emoji: String,
+    val art: Art,
     val color: Color,
     val game: GameId,
 )
 
 private val TILES = listOf(
-    Tile("Colores", "🎨", ClayColors.Pink, GameId.COLORS),
-    Tile("Animales", "🐶", ClayColors.Mint, GameId.ANIMALS),
-    Tile("Frutas", "🍎", ClayColors.Peach, GameId.FRUITS),
-    Tile("Formas", "⭐", ClayColors.Lavender, GameId.SHAPES),
-    Tile("Contar", "🔢", ClayColors.Ochre, GameId.COUNTING),
-    Tile("Memoria", "🧠", ClayColors.Coral, GameId.MEMORY),
+    Tile("Colores", Art.PALETTE, ClayColors.Pink, GameId.COLORS),
+    Tile("Animales", Art.DOG, ClayColors.Mint, GameId.ANIMALS),
+    Tile("Frutas", Art.APPLE, ClayColors.Peach, GameId.FRUITS),
+    Tile("Formas", Art.STAR, ClayColors.Lavender, GameId.SHAPES),
+    Tile("Contar", Art.NUMBERS, ClayColors.Ochre, GameId.COUNTING),
+    Tile("Memoria", Art.CARDS, ClayColors.Coral, GameId.MEMORY),
 )
 
 @Composable
@@ -200,7 +202,7 @@ private fun GameTile(tile: Tile, onClick: () -> Unit, modifier: Modifier = Modif
                     .background(ClayColors.Canvas.copy(alpha = 0.85f)),
                 contentAlignment = Alignment.Center
             ) {
-                Text(tile.emoji, fontSize = 48.sp)
+                ArtImage(tile.art, Modifier.size(64.dp))
             }
             Spacer(Modifier.height(Space.xs))
             Text(tile.label, style = KidsType.label, color = ClayColors.Ink)

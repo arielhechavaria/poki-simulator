@@ -9,7 +9,9 @@
 
     <application
         android:allowBackup="false"
-        android:label="Mis Juegos"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="Aprendo Jugando"
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <activity

@@ -1,8 +1,6 @@
 package com.kidsgames.app
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -11,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,10 +20,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.kidsgames.app.ui.Art
+import com.kidsgames.app.ui.ArtImage
+import com.kidsgames.app.ui.ClayBall
 import com.kidsgames.app.ui.ClayButton
 import com.kidsgames.app.ui.ClayCard
 import com.kidsgames.app.ui.GameScaffold
@@ -34,10 +32,10 @@ import com.kidsgames.app.ui.theme.ClayColors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/** One answer option: either a coloured circle or an emoji, plus what the voice says. */
+/** One answer option: either a coloured ball or an illustration, plus what the voice says. */
 data class Choice(
     val spoken: String,
-    val emoji: String? = null,
+    val art: Art? = null,
     val color: Color? = null,
 )
 
@@ -52,47 +50,41 @@ val COLOR_ITEMS = listOf(
 )
 
 val ANIMAL_ITEMS = listOf(
-    Choice("el perro", "🐶"),
-    Choice("el gato", "🐱"),
-    Choice("la vaca", "🐮"),
-    Choice("el cerdo", "🐷"),
-    Choice("el pollito", "🐥"),
-    Choice("la rana", "🐸"),
-    Choice("el león", "🦁"),
-    Choice("el elefante", "🐘"),
-    Choice("el pez", "🐟"),
+    Choice("el perro", Art.DOG),
+    Choice("el gato", Art.CAT),
+    Choice("la vaca", Art.COW),
+    Choice("el cerdo", Art.PIG),
+    Choice("el pollito", Art.CHICK),
+    Choice("la rana", Art.FROG),
+    Choice("el león", Art.LION),
+    Choice("el elefante", Art.ELEPHANT),
+    Choice("el pez", Art.FISH),
 )
 
 val FRUIT_ITEMS = listOf(
-    Choice("la manzana", "🍎"),
-    Choice("el plátano", "🍌"),
-    Choice("las uvas", "🍇"),
-    Choice("la fresa", "🍓"),
-    Choice("la naranja", "🍊"),
-    Choice("la sandía", "🍉"),
-    Choice("la pera", "🍐"),
+    Choice("la manzana", Art.APPLE),
+    Choice("el plátano", Art.BANANA),
+    Choice("las uvas", Art.GRAPES),
+    Choice("la fresa", Art.STRAWBERRY),
+    Choice("la naranja", Art.ORANGE),
+    Choice("la sandía", Art.WATERMELON),
+    Choice("la pera", Art.PEAR),
 )
 
 val SHAPE_ITEMS = listOf(
-    Choice("la estrella", "⭐"),
-    Choice("el corazón", "❤️"),
-    Choice("el triángulo", "🔺"),
-    Choice("el cuadrado", "⬛"),
-    Choice("el círculo", "⭕"),
-    Choice("el rombo", "🔷"),
+    Choice("la estrella", Art.STAR),
+    Choice("el corazón", Art.HEART),
+    Choice("el triángulo", Art.TRIANGLE),
+    Choice("el cuadrado", Art.SQUARE),
+    Choice("el círculo", Art.CIRCLE),
+    Choice("el rombo", Art.DIAMOND),
 )
 
 @Composable
 private fun ChoiceVisual(choice: Choice) {
-    if (choice.color != null) {
-        Box(
-            Modifier
-                .size(110.dp)
-                .clip(CircleShape)
-                .background(choice.color)
-        )
-    } else {
-        Text(choice.emoji.orEmpty(), fontSize = 72.sp)
+    when {
+        choice.color != null -> ClayBall(choice.color, Modifier.size(120.dp))
+        choice.art != null -> ArtImage(choice.art, Modifier.size(120.dp))
     }
 }
 
@@ -130,7 +122,7 @@ fun ChoiceGame(items: List<Choice>, onHome: () -> Unit) {
                 .size(width = 88.dp, height = 94.dp),
             color = ClayColors.Ochre,
         ) {
-            Text("🔊", fontSize = 40.sp)
+            ArtImage(Art.SPEAKER, Modifier.size(44.dp))
         }
         Spacer(Modifier.height(8.dp))
         options.chunked(2).forEach { rowOptions ->

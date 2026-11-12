@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -16,14 +17,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.kidsgames.app.ui.Art
+import com.kidsgames.app.ui.ArtImage
 import com.kidsgames.app.ui.ClayButton
 import com.kidsgames.app.ui.ClayCard
 import com.kidsgames.app.ui.GameScaffold
 import com.kidsgames.app.ui.theme.ClayColors
+import com.kidsgames.app.ui.theme.KidsType
 import kotlinx.coroutines.delay
 
-private val MEMORY_EMOJIS = listOf("🐶", "🐱", "🐸", "🐥", "🍎", "🍌", "🚗", "⭐")
+private val MEMORY_ART = listOf(Art.DOG, Art.CAT, Art.FROG, Art.CHICK, Art.APPLE, Art.BANANA, Art.CAR, Art.STAR)
 
 /** Find the pairs: 3 pairs (6 cards) keeps it easy for a 4-year-old. */
 @Composable
@@ -33,7 +36,7 @@ fun MemoryGame(onHome: () -> Unit) {
     var stars by remember { mutableIntStateOf(0) }
 
     val cards = remember(round) {
-        MEMORY_EMOJIS.shuffled().take(3).let { picked -> (picked + picked).shuffled() }
+        MEMORY_ART.shuffled().take(3).let { picked -> (picked + picked).shuffled() }
     }
     val faceUp = remember(round) { mutableStateListOf<Int>() }
     val matched = remember(round) { mutableStateListOf<Int>() }
@@ -89,7 +92,11 @@ fun MemoryGame(onHome: () -> Unit) {
                             }
                         },
                     ) {
-                        Text(if (visible) cards[index] else "❓", fontSize = 56.sp)
+                        if (visible) {
+                            ArtImage(cards[index], Modifier.size(80.dp))
+                        } else {
+                            Text("?", style = KidsType.number, color = ClayColors.Canvas)
+                        }
                     }
                 }
             }
@@ -101,7 +108,7 @@ fun MemoryGame(onHome: () -> Unit) {
                     .fillMaxWidth()
                     .height(96.dp),
             ) {
-                Text("🔄", fontSize = 48.sp)
+                ArtImage(Art.REPLAY, Modifier.size(52.dp), tint = ClayColors.Canvas)
             }
         }
     }

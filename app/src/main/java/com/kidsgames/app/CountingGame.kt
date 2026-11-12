@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,7 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.kidsgames.app.ui.Art
+import com.kidsgames.app.ui.ArtImage
 import com.kidsgames.app.ui.ClayCard
 import com.kidsgames.app.ui.GameScaffold
 import com.kidsgames.app.ui.theme.ClayColors
@@ -28,7 +30,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 private val NUMBER_COLORS = listOf(ClayColors.Mint, ClayColors.Peach, ClayColors.Lavender)
-private val COUNT_EMOJIS = listOf("🍎", "⭐", "🐟", "🚗", "🎈", "🐥")
+private val COUNT_ART = listOf(Art.APPLE, Art.STAR, Art.FISH, Art.CAR, Art.BALLOON, Art.CHICK)
 
 /** Shows 1-9 objects; the child taps the matching number. */
 @Composable
@@ -40,7 +42,7 @@ fun CountingGame(onHome: () -> Unit) {
     var locked by remember { mutableStateOf(false) }
 
     val count = remember(round) { Random.nextInt(1, 10) }
-    val emoji = remember(round) { COUNT_EMOJIS.random() }
+    val art = remember(round) { COUNT_ART.random() }
     val options = remember(round) {
         (1..9).filter { it != count }.shuffled().take(2).plus(count).shuffled()
     }
@@ -61,9 +63,9 @@ fun CountingGame(onHome: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            List(count) { emoji }.chunked(3).forEach { rowItems ->
+            List(count) { art }.chunked(3).forEach { rowItems ->
                 Row(horizontalArrangement = Arrangement.Center) {
-                    rowItems.forEach { item -> Text(item, fontSize = 64.sp) }
+                    rowItems.forEach { item -> ArtImage(item, Modifier.size(84.dp)) }
                 }
             }
         }
