@@ -1,17 +1,27 @@
 # Kids Games
 
-Offline educational mini-games for a 4-year-old, built with Kotlin and Jetpack Compose.
-No ads, no network permission, no tracking.
+Offline game portal for a 4-year-old, built with Kotlin and Jetpack Compose.
+No ads, no tracking, and the app declares no INTERNET permission.
 
-## Games
+## Sections
 
-Colors, animals, fruits, shapes (voice-guided "find it" game), counting, and memory pairs.
+- **Aprender** (native Compose): colors, animals, fruits, shapes, counting, memory pairs.
+- **Divertirse** (bundled HTML5 games in a sandboxed WebView, served from `assets/games/<id>/`):
+  Carros (original), Pac-Man (MIT, with touch controls added).
+
+## Adding an HTML5 game
+
+1. Put the game in `app/src/main/assets/games/<id>/index.html` (all files local, no CDNs).
+2. Add a `WebGame(...)` entry to `WEB_GAMES` in `WebGameScreen.kt`.
+3. Keep the game's LICENSE file next to it and list it under Credits.
 
 ## Build
 
-The APK is built by GitHub Actions (`.github/workflows/build.yml`). Open the latest
-workflow run and download the `kids-games-debug-apk` artifact, then install it on the phone
-(allow "install unknown apps").
+GitHub Actions builds the APK (`.github/workflows/build.yml`); download the
+`kids-games-debug-apk` artifact or the latest release and install it (allow "install unknown apps").
+Voice prompts use the phone's text-to-speech engine; install the Spanish voice data for offline use.
 
-Voice prompts use the phone's text-to-speech engine; install the Spanish voice data
-for offline use (Settings > System > Languages > Text-to-speech).
+## Credits
+
+- Pac-Man: https://github.com/mumuy/pacman (MIT, see `assets/games/pacman/LICENSE.txt`).
+  Touch wrapper page written for this project; the font PressStart2P is licensed under the SIL OFL.

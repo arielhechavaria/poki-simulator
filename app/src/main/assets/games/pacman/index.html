@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>Pac-Man</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  #canvas { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100vw, 150vh); aspect-ratio: 3 / 2; height: auto; }
+  .btn { position: absolute; width: 64px; height: 64px; border-radius: 16px; border: 0; background: rgba(255,255,255,.28); color: #fff; font-size: 30px; }
+  .btn:active { background: rgba(255,255,255,.55); }
+  #up { right: 76px; bottom: 140px; }
+  #left { right: 144px; bottom: 72px; }
+  #right { right: 8px; bottom: 72px; }
+  #down { right: 76px; bottom: 4px; }
+  #start { left: 12px; bottom: 12px; width: 88px; height: 88px; border-radius: 44px; font-size: 40px; background: rgba(255,214,0,.55); }
+</style>
+</head>
+<body>
+<canvas id="canvas" width="960" height="640"></canvas>
+<button class="btn" id="up">▲</button>
+<button class="btn" id="left">◀</button>
+<button class="btn" id="right">▶</button>
+<button class="btn" id="down">▼</button>
+<button class="btn" id="start">▶</button>
+<script src="./static/script/game.js"></script>
+<script src="./static/script/index.js"></script>
+<script>
+  // The game listens to window keydown events and reads e.keyCode, so touch
+  // controls just dispatch synthetic key events.
+  function press(code) {
+    var e = new Event('keydown');
+    e.keyCode = code;
+    e.which = code;
+    window.dispatchEvent(e);
+  }
+  var keys = { up: 38, left: 37, right: 39, down: 40, start: 32 };
+  Object.keys(keys).forEach(function (id) {
+    document.getElementById(id).addEventListener('pointerdown', function (ev) {
+      ev.preventDefault();
+      press(keys[id]);
+    });
+  });
+  // Swipe on the board also steers.
+  var sx = 0, sy = 0;
+  document.addEventListener('touchstart', function (ev) {
+    sx = ev.touches[0].clientX; sy = ev.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', function (ev) {
+    var t = ev.changedTouches[0], dx = t.clientX - sx, dy = t.clientY - sy;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 30) return;
+    if (Math.abs(dx) > Math.abs(dy)) press(dx > 0 ? 39 : 37);
+    else press(dy > 0 ? 40 : 38);
+  }, { passive: true });
+</script>
+</body>
+</html>

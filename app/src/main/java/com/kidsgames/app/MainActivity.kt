@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -54,43 +56,115 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/** The two top-level sections of the portal. */
+enum class Kind(val title: String, val emoji: String, val color: Color) {
+    LEARN("Aprender", "📚", Color(0xFF43A047)),
+    FUN("Divertirse", "🎮", Color(0xFFFB8C00)),
+}
+
 enum class GameId { COLORS, ANIMALS, FRUITS, SHAPES, COUNTING, MEMORY }
 
-private data class MenuEntry(
-    val id: GameId,
+sealed interface Screen {
+    data object Home : Screen
+    data class Category(val kind: Kind) : Screen
+    data class Native(val id: GameId) : Screen
+    data class Web(val game: WebGame) : Screen
+}
+
+private data class Tile(
     val label: String,
     val emoji: String,
     val color: Color,
+    val target: Screen,
 )
 
-private val MENU = listOf(
-    MenuEntry(GameId.COLORS, "Colores", "🎨", Color(0xFFE53935)),
-    MenuEntry(GameId.ANIMALS, "Animales", "🐶", Color(0xFF43A047)),
-    MenuEntry(GameId.FRUITS, "Frutas", "🍎", Color(0xFFFB8C00)),
-    MenuEntry(GameId.SHAPES, "Formas", "⭐", Color(0xFF8E24AA)),
-    MenuEntry(GameId.COUNTING, "Contar", "🔢", Color(0xFF1E88E5)),
-    MenuEntry(GameId.MEMORY, "Memoria", "🧠", Color(0xFFEC407A)),
+private val LEARN_TILES = listOf(
+    Tile("Colores", "🎨", Color(0xFFE53935), Screen.Native(GameId.COLORS)),
+    Tile("Animales", "🐶", Color(0xFF43A047), Screen.Native(GameId.ANIMALS)),
+    Tile("Frutas", "🍎", Color(0xFFFB8C00), Screen.Native(GameId.FRUITS)),
+    Tile("Formas", "⭐", Color(0xFF8E24AA), Screen.Native(GameId.SHAPES)),
+    Tile("Contar", "🔢", Color(0xFF1E88E5), Screen.Native(GameId.COUNTING)),
+    Tile("Memoria", "🧠", Color(0xFFEC407A), Screen.Native(GameId.MEMORY)),
 )
+
+private val FUN_TILES = WEB_GAMES.map { game ->
+    Tile(game.label, game.emoji, game.color, Screen.Web(game))
+}
 
 @Composable
 fun App() {
-    var current by remember { mutableStateOf<GameId?>(null) }
-    BackHandler(enabled = current != null) { current = null }
-    val goHome = { current = null }
+    var screen by remember { mutableStateOf<Screen>(Screen.Home) }
 
-    when (current) {
-        null -> Menu(onPick = { current = it })
-        GameId.COLORS -> ChoiceGame(COLOR_ITEMS, goHome)
-        GameId.ANIMALS -> ChoiceGame(ANIMAL_ITEMS, goHome)
-        GameId.FRUITS -> ChoiceGame(FRUIT_ITEMS, goHome)
-        GameId.SHAPES -> ChoiceGame(SHAPE_ITEMS, goHome)
-        GameId.COUNTING -> CountingGame(goHome)
-        GameId.MEMORY -> MemoryGame(goHome)
+    fun back() {
+        screen = when (screen) {
+            Screen.Home -> Screen.Home
+            is Screen.Category -> Screen.Home
+            is Screen.Native -> Screen.Category(Kind.LEARN)
+            is Screen.Web -> Screen.Category(Kind.FUN)
+        }
+    }
+
+    BackHandler(enabled = screen != Screen.Home) { back() }
+
+    when (val current = screen) {
+        Screen.Home -> HomeScreen(onPick = { screen = Screen.Category(it) })
+        is Screen.Category -> TileScreen(
+            title = current.kind.title,
+            tiles = if (current.kind == Kind.LEARN) LEARN_TILES else FUN_TILES,
+            onPick = { screen = it },
+            onBack = { back() }
+        )
+        is Screen.Native -> when (current.id) {
+            GameId.COLORS -> ChoiceGame(COLOR_ITEMS) { back() }
+            GameId.ANIMALS -> ChoiceGame(ANIMAL_ITEMS) { back() }
+            GameId.FRUITS -> ChoiceGame(FRUIT_ITEMS) { back() }
+            GameId.SHAPES -> ChoiceGame(SHAPE_ITEMS) { back() }
+            GameId.COUNTING -> CountingGame { back() }
+            GameId.MEMORY -> MemoryGame { back() }
+        }
+        is Screen.Web -> WebGameScreen(current.game) { back() }
     }
 }
 
 @Composable
-private fun Menu(onPick: (GameId) -> Unit) {
+private fun HomeScreen(onPick: (Kind) -> Unit) {
+    Column(
+        Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Kind.entries.forEach { kind ->
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(36.dp))
+                    .background(kind.color)
+                    .clickable { onPick(kind) },
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(kind.emoji, fontSize = 96.sp)
+                    Text(
+                        kind.title,
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TileScreen(
+    title: String,
+    tiles: List<Tile>,
+    onPick: (Screen) -> Unit,
+    onBack: () -> Unit,
+) {
     Column(
         Modifier
             .fillMaxSize()
@@ -98,29 +172,47 @@ private fun Menu(onPick: (GameId) -> Unit) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("¡A jugar!", fontSize = 36.sp, fontWeight = FontWeight.Bold)
-        Spacer(Modifier.height(16.dp))
-        MENU.chunked(2).forEach { rowEntries ->
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Box(
+                Modifier
+                    .size(64.dp)
+                    .clip(CircleShape)
+                    .background(Color.White)
+                    .clickable(onClick = onBack),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("🏠", fontSize = 32.sp)
+            }
+            Spacer(Modifier.weight(1f))
+            Text(title, fontSize = 32.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.weight(1f))
+            Spacer(Modifier.size(64.dp))
+        }
+        Spacer(Modifier.height(8.dp))
+        tiles.chunked(2).forEach { rowTiles ->
             Row(
                 Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                rowEntries.forEach { entry ->
+                rowTiles.forEach { tile ->
                     Box(
                         Modifier
                             .weight(1f)
                             .aspectRatio(1f)
                             .clip(RoundedCornerShape(28.dp))
-                            .background(entry.color)
-                            .clickable { onPick(entry.id) },
+                            .background(tile.color)
+                            .clickable { onPick(tile.target) },
                         contentAlignment = Alignment.Center
                     ) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(entry.emoji, fontSize = 64.sp)
+                            Text(tile.emoji, fontSize = 64.sp)
                             Text(
-                                entry.label,
+                                tile.label,
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.White
@@ -128,7 +220,7 @@ private fun Menu(onPick: (GameId) -> Unit) {
                         }
                     }
                 }
-                if (rowEntries.size < 2) Spacer(Modifier.weight(1f))
+                if (rowTiles.size < 2) Spacer(Modifier.weight(1f))
             }
         }
     }
