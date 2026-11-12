@@ -251,6 +251,8 @@ fun LevelPlay(
         GameId.PAINT -> PaintGame(level, run, onHome)
         GameId.PUZZLE -> PuzzleGame(level, run, onHome)
         GameId.SORT -> SortGame(level, run, onHome)
+        GameId.ROUTINES -> RoutineGame(level, run, onHome)
+        GameId.OPPOSITES -> OppositesGame(level, run, onHome)
     }
 }
 

@@ -10,7 +10,7 @@ import com.kidsgames.app.ui.theme.ClayColors
 import kotlin.math.roundToInt
 
 /** Stored on the device as part of the progress keys: never rename an entry. */
-enum class GameId { COLORS, ANIMALS, FRUITS, SHAPES, COUNTING, MEMORY, LETTERS, NUMBERS, SOUNDS, TRACE, PAINT, PUZZLE, SORT }
+enum class GameId { COLORS, ANIMALS, FRUITS, SHAPES, COUNTING, MEMORY, LETTERS, NUMBERS, SOUNDS, TRACE, PAINT, PUZZLE, SORT, ROUTINES, OPPOSITES }
 
 /** A stop on the adventure map: one game, its look, and the stars needed to open it. */
 data class World(
@@ -36,6 +36,8 @@ val WORLDS = listOf(
     World(GameId.PAINT, "Pintar", Art.BRUSH, ClayColors.Pink, starsToOpen = 48),
     World(GameId.PUZZLE, "Puzzles", Art.PUZZLE, ClayColors.Mint, starsToOpen = 54),
     World(GameId.SORT, "Encajar", Art.SORTER, ClayColors.Lavender, starsToOpen = 60),
+    World(GameId.ROUTINES, "Rutinas", Art.CLOCK, ClayColors.Ochre, starsToOpen = 66),
+    World(GameId.OPPOSITES, "Opuestos", Art.SCALE, ClayColors.Coral, starsToOpen = 72),
 )
 
 /** A memory board, a puzzle or a drawing takes much longer than a question, so fewer rounds. */

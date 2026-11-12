@@ -17,7 +17,9 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import com.kidsgames.app.ui.theme.ClayColors
+import kotlin.math.cos
 import kotlin.math.max
+import kotlin.math.sin
 
 /** Every illustration the games use. All of them are drawn in code, in the clay look. */
 enum class Art {
@@ -34,7 +36,10 @@ enum class Art {
     CAR, BALLOON,
 
     // Home tiles.
-    PALETTE, NUMBERS, CARDS, BLOCKS, ABACUS, NOTE, CRAYON, BRUSH, PUZZLE, SORTER,
+    PALETTE, NUMBERS, CARDS, BLOCKS, ABACUS, NOTE, CRAYON, BRUSH, PUZZLE, SORTER, CLOCK, SCALE,
+
+    // Daily routine steps.
+    SUN, TOOTHBRUSH, BOWL, SHIRT, BED, MOON,
 
     // Collection: the daily gift and the sticker album.
     GIFT, ALBUM,
@@ -109,6 +114,14 @@ private fun DrawScope.drawArt(art: Art, tint: Color) = onGrid {
         Art.BRUSH -> brush()
         Art.PUZZLE -> puzzle()
         Art.SORTER -> sorter()
+        Art.CLOCK -> clock()
+        Art.SCALE -> scale()
+        Art.SUN -> sun()
+        Art.TOOTHBRUSH -> toothbrush()
+        Art.BOWL -> bowl()
+        Art.SHIRT -> shirt()
+        Art.BED -> bed()
+        Art.MOON -> moon()
         Art.GIFT -> gift()
         Art.ALBUM -> album()
         Art.HOME -> home(tint)
@@ -654,6 +667,95 @@ private fun DrawScope.sorter() {
     roundRect(ClayColors.Teal, 54f, 61f, 18f, 18f, 4f)
     clayPath(ClayColors.Ochre, polygon(66f to 6f, 70f to 18f, 83f to 18f, 73f to 26f, 77f to 38f, 66f to 31f, 55f to 38f, 59f to 26f, 49f to 18f, 62f to 18f), round = 2f)
     shine(18f, 52f, 14f, 6f)
+}
+
+private fun DrawScope.clock() {
+    groundShadow(32f)
+    ball(ClayColors.Ochre, 50f, 52f, 38f)
+    ball(ClayColors.SurfaceSoft, 50f, 52f, 29f)
+    line(ClayColors.Ink, 50f, 52f, 50f, 33f, 4f)
+    line(ClayColors.Ink, 50f, 52f, 63f, 58f, 4f)
+    ball(ClayColors.Pink, 50f, 52f, 3.6f)
+    ball(ClayColors.Coral, 26f, 16f, 9f)
+    ball(ClayColors.Coral, 74f, 16f, 9f)
+}
+
+private fun DrawScope.scale() {
+    groundShadow(30f)
+    roundRect(ClayColors.Teal.tint(0.2f), 44f, 22f, 12f, 66f, 5f)
+    roundRect(ClayColors.Teal, 22f, 82f, 56f, 10f, 5f)
+    line(ClayColors.Body, 18f, 26f, 82f, 26f, 4f)
+    // Heavy plate low on the left, light plate high on the right.
+    ball(ClayColors.Pink, 18f, 56f, 13f)
+    roundRect(ClayColors.Lavender, 6f, 64f, 24f, 6f, 3f)
+    ball(ClayColors.Mint, 82f, 38f, 8f)
+    roundRect(ClayColors.Lavender, 72f, 44f, 20f, 5f, 2.5f)
+}
+
+private fun DrawScope.sun() {
+    val rays = ClayColors.Ochre
+    repeat(8) { i ->
+        val a = Math.toRadians(i * 45.0)
+        line(rays, 50f + 34f * cos(a).toFloat(), 50f + 34f * sin(a).toFloat(),
+            50f + 46f * cos(a).toFloat(), 50f + 46f * sin(a).toFloat(), 5f)
+    }
+    ball(ClayColors.Ochre.tint(0.1f), 50f, 50f, 28f)
+    eyes(41f, 59f, 47f, 3.2f)
+    smile(50f, 56f, 16f)
+}
+
+private fun DrawScope.toothbrush() {
+    groundShadow(30f)
+    rotate(-35f, Offset(50f, 50f)) {
+        roundRect(ClayColors.Mint, 14f, 44f, 72f, 12f, 6f)
+        roundRect(ClayColors.Pink, 62f, 36f, 26f, 28f, 8f)
+        repeat(4) { i -> line(ClayColors.Canvas, 66f + i * 5.5f, 36f, 66f + i * 5.5f, 28f, 2.6f) }
+    }
+    ball(ClayColors.Lavender.tint(0.3f), 24f, 26f, 5f)
+    ball(ClayColors.Lavender.tint(0.3f), 34f, 16f, 3.2f)
+}
+
+private fun DrawScope.bowl() {
+    groundShadow(34f)
+    ball(ClayColors.Coral, 36f, 46f, 12f)
+    ball(ClayColors.Ochre, 56f, 42f, 12f)
+    ball(ClayColors.Mint, 70f, 50f, 10f)
+    clayPath(ClayColors.Peach, polygon(10f to 54f, 90f to 54f, 76f to 84f, 24f to 84f), round = 6f)
+    roundRect(ClayColors.Peach.tint(0.2f), 8f, 50f, 84f, 10f, 5f)
+    shine(24f, 62f, 12f, 5f)
+}
+
+private fun DrawScope.shirt() {
+    groundShadow(34f)
+    clayPath(
+        ClayColors.Lavender,
+        polygon(34f to 14f, 66f to 14f, 92f to 34f, 80f to 48f, 72f to 42f, 72f to 88f, 28f to 88f, 28f to 42f, 20f to 48f, 8f to 34f),
+        round = 4f,
+    )
+    drawArc(ClayColors.Canvas, 0f, 180f, true, Offset(40f, 4f), Size(20f, 20f))
+    ball(ClayColors.Pink, 50f, 62f, 6f)
+}
+
+private fun DrawScope.bed() {
+    groundShadow(40f)
+    roundRect(ClayColors.Teal.tint(0.15f), 8f, 40f, 10f, 48f, 4f)
+    roundRect(ClayColors.Peach, 12f, 62f, 80f, 20f, 8f)
+    roundRect(ClayColors.Lavender, 30f, 50f, 62f, 20f, 9f)
+    roundRect(ClayColors.SurfaceSoft, 16f, 48f, 24f, 14f, 7f)
+    roundRect(ClayColors.Teal.tint(0.15f), 84f, 70f, 8f, 18f, 3f)
+}
+
+private fun DrawScope.moon() {
+    val crescent = Path().apply {
+        moveTo(66f, 10f)
+        cubicTo(24f, 10f, 14f, 66f, 54f, 88f)
+        cubicTo(26f, 70f, 40f, 30f, 66f, 10f)
+        close()
+    }
+    clayPath(ClayColors.Ochre.tint(0.2f), crescent, round = 8f)
+    listOf(78f to 24f, 86f to 52f, 64f to 62f).forEachIndexed { i, (x, y) ->
+        ball(ClayColors.Ochre, x, y, 4f + i)
+    }
 }
 
 private fun DrawScope.gift() {
