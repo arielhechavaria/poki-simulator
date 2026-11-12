@@ -13,12 +13,15 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -45,6 +48,17 @@ enum class MascotMood {
     ENCOURAGING,
 }
 
+/** Extras the mascot can wear, unlocked with stars. Saved by name: never rename an entry. */
+enum class Accessory(val label: String, val starsToUnlock: Int) {
+    BOW("el moño", 10),
+    GLASSES("las gafas", 25),
+    HAT("el gorro", 45),
+    CROWN("la corona", 70),
+}
+
+/** What the mascot wears everywhere it shows up; provided once at the top of the app. */
+val LocalMascotAccessory = compositionLocalOf<Accessory?> { null }
+
 /**
  * The app's own character: a lavender clay blob with a sprout on its head. Drawn on a
  * 100x100 grid scaled to the smaller side, so it stays sharp at any size.
@@ -54,6 +68,7 @@ fun Mascot(
     mood: MascotMood,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    accessory: Accessory? = LocalMascotAccessory.current,
 ) {
     // One looping clock drives every periodic motion; all of them use whole cycles
     // per loop, so nothing jumps when the clock restarts.
@@ -100,12 +115,19 @@ fun Mascot(
             left = (size.width - 100f * unit) / 2f,
             top = (size.height - 100f * unit) / 2f,
         ) {
-            drawMascot(unit = unit, time = time, cheer = cheer, talk = talk, tilt = tilt)
+            drawMascot(unit = unit, time = time, cheer = cheer, talk = talk, tilt = tilt, accessory = accessory)
         }
     }
 }
 
-private fun DrawScope.drawMascot(unit: Float, time: Float, cheer: Float, talk: Float, tilt: Float) {
+private fun DrawScope.drawMascot(
+    unit: Float,
+    time: Float,
+    cheer: Float,
+    talk: Float,
+    tilt: Float,
+    accessory: Accessory?,
+) {
     fun at(x: Float, y: Float) = Offset(x * unit, y * unit)
 
     val body = ClayColors.Lavender
@@ -193,6 +215,7 @@ private fun DrawScope.drawMascot(unit: Float, time: Float, cheer: Float, talk: F
 
             drawEyes(unit, happy = cheerAmount > 0.5f, blinking = blinking)
             drawMouth(unit, cheering = cheerAmount > 0.5f, talk = talk, phase = phase)
+            if (accessory != null) drawAccessory(unit, accessory)
         }
     }
 }
@@ -275,5 +298,52 @@ private fun DrawScope.drawMouth(unit: Float, cheering: Boolean, talk: Float, pha
             size = Size(14f * unit, 10f * unit),
             style = Stroke(width = 2.6f * unit, cap = StrokeCap.Round),
         )
+    }
+}
+
+/** Drawn on top of the body, in the mascot's own 100x100 grid. */
+private fun DrawScope.drawAccessory(unit: Float, accessory: Accessory) {
+    fun at(x: Float, y: Float) = Offset(x * unit, y * unit)
+    fun polygon(vararg points: Pair<Float, Float>) = Path().apply {
+        points.forEachIndexed { i, (x, y) -> if (i == 0) moveTo(x * unit, y * unit) else lineTo(x * unit, y * unit) }
+        close()
+    }
+
+    when (accessory) {
+        Accessory.BOW -> {
+            // A coral bow on the right side of the head.
+            rotate(-24f, pivot = at(66f, 33f)) {
+                drawOval(ClayColors.Coral, topLeft = at(52f, 27f), size = Size(14f * unit, 12f * unit))
+            }
+            rotate(24f, pivot = at(66f, 33f)) {
+                drawOval(ClayColors.Coral.shade(0.1f), topLeft = at(66f, 27f), size = Size(14f * unit, 12f * unit))
+            }
+            drawCircle(ClayColors.Coral.shade(0.22f), radius = 4.2f * unit, center = at(66f, 33f))
+        }
+
+        Accessory.GLASSES -> {
+            val rim = Stroke(width = 2.4f * unit, cap = StrokeCap.Round)
+            listOf(39f, 61f).forEach { x ->
+                drawCircle(ClayColors.Teal, radius = 9f * unit, center = at(x, 52f), style = rim)
+                drawCircle(Color.White.copy(alpha = 0.22f), radius = 8f * unit, center = at(x, 52f))
+            }
+            drawLine(ClayColors.Teal, at(48f, 51f), at(52f, 51f), strokeWidth = 2.4f * unit, cap = StrokeCap.Round)
+        }
+
+        Accessory.HAT -> {
+            // A party hat with a pompom.
+            drawPath(polygon(38f to 33f, 62f to 33f, 50f to 4f), ClayColors.Pink)
+            drawPath(polygon(44f to 20f, 56f to 20f, 53f to 13f, 47f to 13f), ClayColors.Ochre)
+            drawCircle(ClayColors.Ochre, radius = 4f * unit, center = at(50f, 5f))
+        }
+
+        Accessory.CROWN -> {
+            drawPath(
+                polygon(36f to 34f, 36f to 20f, 43f to 27f, 50f to 17f, 57f to 27f, 64f to 20f, 64f to 34f),
+                ClayColors.Ochre,
+            )
+            drawRect(ClayColors.Ochre.shade(0.15f), topLeft = at(36f, 30f), size = Size(28f * unit, 4f * unit))
+            drawCircle(ClayColors.Pink, radius = 2.2f * unit, center = at(50f, 25f))
+        }
     }
 }

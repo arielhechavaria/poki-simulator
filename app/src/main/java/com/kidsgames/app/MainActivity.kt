@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.kidsgames.app.ui.ClayBackground
+import com.kidsgames.app.ui.LocalMascotAccessory
 import com.kidsgames.app.ui.theme.KidsTheme
 
 class MainActivity : ComponentActivity() {
@@ -42,6 +43,8 @@ class MainActivity : ComponentActivity() {
 /** Where the child is. Each change of screen starts that screen fresh. */
 private sealed interface Screen {
     data object Map : Screen
+    data object Album : Screen
+    data object Gift : Screen
     data class Levels(val world: World) : Screen
     /** [attempt] grows on replay, so the same level starts over from round one. */
     data class Play(val world: World, val level: Int, val attempt: Int = 0) : Screen
@@ -72,6 +75,7 @@ fun App() {
         LocalSfx provides sfx,
         LocalProgress provides loaded,
         LocalProgressStore provides store,
+        LocalMascotAccessory provides loaded.accessory,
     ) {
         key(screen) {
             when (val current = screen) {
@@ -81,7 +85,11 @@ fun App() {
                     seenOpenWorlds = seenOpenWorlds,
                     onSeenOpenWorlds = { seenOpenWorlds = it },
                     onOpen = { screen = Screen.Levels(it) },
+                    onAlbum = { screen = Screen.Album },
+                    onGift = { screen = Screen.Gift },
                 )
+                Screen.Album -> StickerAlbum(onHome = { screen = Screen.Map })
+                Screen.Gift -> DailyGift(onHome = { screen = Screen.Map })
                 is Screen.Levels -> LevelPicker(
                     world = current.world,
                     onHome = { screen = Screen.Map },

@@ -2,6 +2,7 @@ package com.kidsgames.app
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
@@ -70,8 +72,11 @@ fun AdventureMap(
     seenOpenWorlds: Int?,
     onSeenOpenWorlds: (Int) -> Unit,
     onOpen: (World) -> Unit,
+    onAlbum: () -> Unit,
+    onGift: () -> Unit,
 ) {
     val progress = LocalProgress.current
+    val giftReady = remember { progress.giftReady(currentDay()) }
     val feedback = rememberGameFeedback()
     val openCount = WORLDS.count { progress.isWorldOpen(it) }
     // Fixed for this visit, so updating what was seen does not change the words.
@@ -115,14 +120,39 @@ fun AdventureMap(
             ) {
                 Mascot(
                     mood = feedback.mood,
-                    modifier = Modifier.size(120.dp),
+                    modifier = Modifier.size(112.dp),
                     onClick = {
                         feedback.tap()
                         pokes++
                     },
                 )
                 Spacer(Modifier.weight(1f))
-                StarCounter(progress.totalStars)
+                Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(Space.xs)) {
+                    StarCounter(progress.totalStars)
+                    Row(horizontalArrangement = Arrangement.spacedBy(Space.xs)) {
+                        val pulse = rememberPulse(giftReady)
+                        HeaderButton(
+                            art = Art.GIFT,
+                            color = if (giftReady) ClayColors.Pink else ClayColors.SurfaceStrong,
+                            modifier = Modifier.graphicsLayer {
+                                scaleX = pulse
+                                scaleY = pulse
+                            },
+                            onClick = {
+                                feedback.tap()
+                                if (giftReady) onGift() else feedback.ask("¡Vuelve mañana para otro regalo!")
+                            },
+                        )
+                        HeaderButton(
+                            art = Art.ALBUM,
+                            color = ClayColors.Lavender,
+                            onClick = {
+                                feedback.tap()
+                                onAlbum()
+                            },
+                        )
+                    }
+                }
             }
             WorldPath(
                 progress = progress,
@@ -141,6 +171,20 @@ fun AdventureMap(
             )
         }
         CelebrationOverlay(starBursts = feedback.starBursts, confettiShots = feedback.confettiShots)
+    }
+}
+
+/** Round clay button with a picture, for the collection shortcuts above the map. */
+@Composable
+private fun HeaderButton(art: Art, color: Color, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    ClaySurface(
+        color = color,
+        modifier = modifier.size(width = 72.dp, height = 80.dp),
+        onClick = onClick,
+        cornerRadius = Radius.pill,
+        depth = 8.dp,
+    ) {
+        ArtImage(art, Modifier.size(48.dp))
     }
 }
 
@@ -279,7 +323,7 @@ private fun WorldNode(
 
 /** Dark pill with a star and the number of stars that opens the world. */
 @Composable
-private fun StarsToOpen(stars: Int) {
+internal fun StarsToOpen(stars: Int) {
     ClaySurface(
         color = ClayColors.Teal,
         cornerRadius = Radius.pill,

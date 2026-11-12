@@ -200,6 +200,9 @@ fun LevelPlay(
     onNext: (() -> Unit)?,
 ) {
     val store = LocalProgressStore.current
+    val progress = LocalProgress.current
+    // Decided before the first round: the sticker is new only if this level was never finished.
+    val newSticker = remember(world, level) { progress.rating(world.game, level) == 0 }
     val run = remember(world, level) {
         LevelRun(
             rounds = world.game.roundsPerLevel,
@@ -209,7 +212,13 @@ fun LevelPlay(
     }
 
     if (run.finished) {
-        LevelComplete(rating = run.rating, onHome = onHome, onReplay = onReplay, onNext = onNext)
+        LevelComplete(
+            rating = run.rating,
+            stickerWorld = if (newSticker) world else null,
+            onHome = onHome,
+            onReplay = onReplay,
+            onNext = onNext,
+        )
         return
     }
     when (world.game) {
@@ -222,10 +231,13 @@ fun LevelPlay(
     }
 }
 
-private fun levelPraise(rating: Int): String = when (rating) {
-    3 -> "¡Nivel superado! ¡Tres estrellas! ¡Eres genial!"
-    2 -> "¡Nivel superado! ¡Dos estrellas! ¡Muy bien!"
-    else -> "¡Nivel superado! ¡Una estrella! ¡Bien hecho!"
+private fun levelPraise(rating: Int, newSticker: Boolean): String {
+    val base = when (rating) {
+        3 -> "¡Nivel superado! ¡Tres estrellas! ¡Eres genial!"
+        2 -> "¡Nivel superado! ¡Dos estrellas! ¡Muy bien!"
+        else -> "¡Nivel superado! ¡Una estrella! ¡Bien hecho!"
+    }
+    return if (newSticker) "$base ¡Y ganaste una pegatina!" else base
 }
 
 /**
@@ -233,12 +245,19 @@ private fun levelPraise(rating: Int): String = when (rating) {
  * in, so there is never an empty slot that reads as a loss.
  */
 @Composable
-private fun LevelComplete(rating: Int, onHome: () -> Unit, onReplay: () -> Unit, onNext: (() -> Unit)?) {
+private fun LevelComplete(
+    rating: Int,
+    /** The world whose sticker was just won, or null when this level was finished before. */
+    stickerWorld: World?,
+    onHome: () -> Unit,
+    onReplay: () -> Unit,
+    onNext: (() -> Unit)?,
+) {
     val feedback = rememberGameFeedback()
     val pops = remember { List(rating) { Animatable(0f) } }
 
     LaunchedEffect(Unit) {
-        feedback.win(levelPraise(rating))
+        feedback.win(levelPraise(rating, stickerWorld != null))
         pops.forEachIndexed { index, pop ->
             launch {
                 delay(400L + 350L * index)
@@ -262,7 +281,7 @@ private fun LevelComplete(rating: Int, onHome: () -> Unit, onReplay: () -> Unit,
                 StarCounter(LocalProgress.current.totalStars)
             }
             Spacer(Modifier.weight(1f))
-            Mascot(mood = feedback.mood, modifier = Modifier.size(200.dp))
+            Mascot(mood = feedback.mood, modifier = Modifier.size(if (stickerWorld != null) 160.dp else 200.dp))
             Spacer(Modifier.height(Space.lg))
             Row(horizontalArrangement = Arrangement.spacedBy(Space.sm)) {
                 pops.forEach { pop ->
@@ -276,6 +295,11 @@ private fun LevelComplete(rating: Int, onHome: () -> Unit, onReplay: () -> Unit,
                             },
                     )
                 }
+            }
+            if (stickerWorld != null) {
+                Spacer(Modifier.height(Space.md))
+                // Arrives after the last star has popped.
+                StickerReveal(stickerWorld, delayMillis = 400L + 350L * rating + 500L)
             }
             Spacer(Modifier.weight(1f))
             Row(

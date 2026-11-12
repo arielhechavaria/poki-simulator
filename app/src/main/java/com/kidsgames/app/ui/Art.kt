@@ -36,6 +36,9 @@ enum class Art {
     // Home tiles.
     PALETTE, NUMBERS, CARDS,
 
+    // Collection: the daily gift and the sticker album.
+    GIFT, ALBUM,
+
     // Interface icons; these take the tint passed to [ArtImage].
     HOME, SPEAKER, REPLAY, LOCK, NEXT,
 }
@@ -99,6 +102,8 @@ private fun DrawScope.drawArt(art: Art, tint: Color) = onGrid {
         Art.PALETTE -> palette()
         Art.NUMBERS -> numbers()
         Art.CARDS -> cards()
+        Art.GIFT -> gift()
+        Art.ALBUM -> album()
         Art.HOME -> home(tint)
         Art.SPEAKER -> speaker(tint)
         Art.REPLAY -> replay(tint)
@@ -549,6 +554,29 @@ private fun DrawScope.cards() {
         roundRect(ClayColors.SurfaceSoft, 42f, 22f, 44f, 62f, 9f)
         clayPath(ClayColors.Ochre, starPath(Offset(64f, 53f), 14f), round = 1.5f)
     }
+}
+
+private fun DrawScope.gift() {
+    groundShadow(34f)
+    roundRect(ClayColors.Pink, 14f, 42f, 72f, 46f, 9f)
+    roundRect(ClayColors.Pink.tint(0.12f), 10f, 28f, 80f, 22f, 8f)
+    // Ribbon: one band down the box and a bow on top.
+    roundRect(ClayColors.Ochre, 43f, 28f, 14f, 60f, 4f)
+    rotate(-28f, pivot = Offset(40f, 20f)) { oval(ClayColors.Ochre, 22f, 10f, 28f, 18f) }
+    rotate(28f, pivot = Offset(60f, 20f)) { oval(ClayColors.Ochre, 50f, 10f, 28f, 18f) }
+    ball(ClayColors.Ochre.shade(0.12f), 50f, 24f, 6.5f)
+    shine(20f, 34f, 14f, 6f)
+}
+
+private fun DrawScope.album() {
+    groundShadow(36f)
+    roundRect(ClayColors.Teal.tint(0.1f), 10f, 12f, 80f, 76f, 10f)
+    roundRect(ClayColors.Canvas, 20f, 20f, 62f, 60f, 6f)
+    // Three stickers stuck on the page.
+    ball(ClayColors.Pink, 38f, 38f, 11f)
+    clayPath(ClayColors.Ochre, starPath(Offset(65f, 38f), 12f), round = 1.5f)
+    roundRect(ClayColors.Mint, 28f, 56f, 24f, 16f, 6f)
+    ball(ClayColors.Lavender, 68f, 64f, 9f)
 }
 
 // ---------------------------------------------------------------------------------------------
