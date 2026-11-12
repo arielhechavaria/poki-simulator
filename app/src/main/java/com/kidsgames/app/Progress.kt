@@ -44,7 +44,18 @@ data class Progress(
     val giftCount: Int = 0,
     /** Name of the [Accessory] the mascot wears, or empty. */
     private val accessoryName: String = "",
+    /** Daily play limit set by a parent, in minutes; 0 means no limit. */
+    val limitMinutes: Int = 0,
+    /** Day number (see [currentDay]) that [usedSeconds] belongs to. */
+    private val usedDay: Long = -1L,
+    private val usedSeconds: Int = 0,
 ) {
+    /** Seconds played on [today]; a new day starts from zero. */
+    fun secondsToday(today: Long): Int = if (usedDay == today) usedSeconds else 0
+
+    /** True once the child has played the whole daily limit. */
+    fun timeUp(today: Long): Boolean = limitMinutes > 0 && secondsToday(today) >= limitMinutes * 60
+
     /** 0 while the level was never finished, else its best rating from 1 to 3. */
     fun rating(game: GameId, level: Int): Int = bestRatings[levelKey(game, level)] ?: 0
 
@@ -86,6 +97,9 @@ private val TOTAL_STARS = intPreferencesKey("stars_total")
 private val GIFT_DAY = longPreferencesKey("gift_day")
 private val GIFT_COUNT = intPreferencesKey("gift_count")
 private val ACCESSORY = stringPreferencesKey("accessory")
+private val LIMIT_MINUTES = intPreferencesKey("limit_minutes")
+private val USED_DAY = longPreferencesKey("used_day")
+private val USED_SECONDS = intPreferencesKey("used_seconds")
 private fun levelKey(game: GameId, level: Int) = "$BEST_PREFIX${game.name}_$level"
 
 private val Context.progressDataStore: DataStore<Preferences> by preferencesDataStore(name = "progress")
@@ -110,6 +124,9 @@ class ProgressStore private constructor(private val dataStore: DataStore<Prefere
                 giftDay = prefs[GIFT_DAY] ?: -1L,
                 giftCount = prefs[GIFT_COUNT] ?: 0,
                 accessoryName = prefs[ACCESSORY] ?: "",
+                limitMinutes = prefs[LIMIT_MINUTES] ?: 0,
+                usedDay = prefs[USED_DAY] ?: -1L,
+                usedSeconds = prefs[USED_SECONDS] ?: 0,
             )
         }
 
@@ -144,6 +161,37 @@ class ProgressStore private constructor(private val dataStore: DataStore<Prefere
     /** Puts [accessory] on the mascot, or takes everything off with null. */
     fun equip(accessory: Accessory?) {
         scope.launch { dataStore.edit { it[ACCESSORY] = accessory?.name ?: "" } }
+    }
+
+    /** Sets the daily play limit in minutes; 0 removes it. */
+    fun setLimit(minutes: Int) {
+        scope.launch { dataStore.edit { it[LIMIT_MINUTES] = minutes.coerceAtLeast(0) } }
+    }
+
+    /** Adds [seconds] of play to [today]; the first call of a new day starts the count over. */
+    fun addPlaytime(today: Long, seconds: Int) {
+        scope.launch {
+            dataStore.edit {
+                val base = if (it[USED_DAY] == today) it[USED_SECONDS] ?: 0 else 0
+                it[USED_DAY] = today
+                it[USED_SECONDS] = base + seconds
+            }
+        }
+    }
+
+    /** Erases stars, levels, stickers, gifts and accessories. The parent's settings stay. */
+    fun resetProgress() {
+        scope.launch {
+            dataStore.edit {
+                val limit = it[LIMIT_MINUTES]
+                val day = it[USED_DAY]
+                val used = it[USED_SECONDS]
+                it.clear()
+                limit?.let { v -> it[LIMIT_MINUTES] = v }
+                day?.let { v -> it[USED_DAY] = v }
+                used?.let { v -> it[USED_SECONDS] = v }
+            }
+        }
     }
 
     companion object {

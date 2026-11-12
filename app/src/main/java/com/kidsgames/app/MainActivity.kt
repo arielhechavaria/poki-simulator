@@ -9,6 +9,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import kotlinx.coroutines.delay
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -45,6 +50,8 @@ private sealed interface Screen {
     data object Map : Screen
     data object Album : Screen
     data object Gift : Screen
+    data object Gate : Screen
+    data object Parents : Screen
     data class Levels(val world: World) : Screen
     /** [attempt] grows on replay, so the same level starts over from round one. */
     data class Play(val world: World, val level: Int, val attempt: Int = 0) : Screen
@@ -62,9 +69,28 @@ fun App() {
     var seenOpenWorlds by remember { mutableStateOf<Int?>(null) }
     val sfx = rememberSfx()
 
+    // Count play time only while the app is on screen and a game screen is showing.
+    val lifecycle = (context as ComponentActivity).lifecycle
+    var resumed by remember { mutableStateOf(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) }
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, _ ->
+            resumed = lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
+    val counting = resumed && screen != Screen.Gate && screen != Screen.Parents
+    LaunchedEffect(counting) {
+        while (counting) {
+            delay(PLAYTIME_TICK_SECONDS * 1000L)
+            store.addPlaytime(currentDay(), PLAYTIME_TICK_SECONDS)
+        }
+    }
+
     BackHandler(enabled = screen != Screen.Map) {
         screen = when (val current = screen) {
             is Screen.Play -> Screen.Levels(current.world)
+            Screen.Parents -> Screen.Gate
             else -> Screen.Map
         }
     }
@@ -77,7 +103,12 @@ fun App() {
         LocalProgressStore provides store,
         LocalMascotAccessory provides loaded.accessory,
     ) {
-        key(screen) {
+        val timeUp = loaded.timeUp(currentDay()) && screen != Screen.Gate && screen != Screen.Parents
+        key(screen, timeUp) {
+            if (timeUp) {
+                TimeUpScreen(onParents = { screen = Screen.Gate })
+                return@key
+            }
             when (val current = screen) {
                 Screen.Map -> AdventureMap(
                     firstVisit = !greeted,
@@ -87,7 +118,10 @@ fun App() {
                     onOpen = { screen = Screen.Levels(it) },
                     onAlbum = { screen = Screen.Album },
                     onGift = { screen = Screen.Gift },
+                    onParents = { screen = Screen.Gate },
                 )
+                Screen.Gate -> ParentsGate(onPass = { screen = Screen.Parents }, onHome = { screen = Screen.Map })
+                Screen.Parents -> ParentsPanel(onHome = { screen = Screen.Map })
                 Screen.Album -> StickerAlbum(onHome = { screen = Screen.Map })
                 Screen.Gift -> DailyGift(onHome = { screen = Screen.Map })
                 is Screen.Levels -> LevelPicker(

@@ -74,6 +74,7 @@ fun AdventureMap(
     onOpen: (World) -> Unit,
     onAlbum: () -> Unit,
     onGift: () -> Unit,
+    onParents: () -> Unit,
 ) {
     val progress = LocalProgress.current
     val giftReady = remember { progress.giftReady(currentDay()) }
@@ -171,6 +172,12 @@ fun AdventureMap(
             )
         }
         CelebrationOverlay(starBursts = feedback.starBursts, confettiShots = feedback.confettiShots)
+        ParentsLockButton(
+            onClick = onParents,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(Space.md),
+        )
     }
 }
 
