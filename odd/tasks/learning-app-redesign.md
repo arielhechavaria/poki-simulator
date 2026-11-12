@@ -35,7 +35,7 @@ Suggested model in brackets. Briefs are under "Task briefs".
 
 - [x] T1 (S1, S6 license) inline — remove the fun section, add MIT license. Commit 9aa977a, CI green.
 - [x] T2 (S6 authorship) inline — noreply email set for new commits; history left as is by user decision (L4).
-- [ ] T3 (S3, S7) inline [opus] — design system foundation and restyled home.
+- [x] T3 (S3, S7) inline [opus] — design system foundation and restyled home. Commit 2535bfe, CI green.
 - [ ] T4 (S3, S7) inline [sonnet] — mascot, celebrations and sounds.
 - [ ] T5 (S3, S5) inline [sonnet] — own illustrations for the 6 games and app icon.
 - [ ] T6 (S4, S7) inline [opus] — saved progress, stars, progressive levels, adventure-map home.
@@ -84,4 +84,8 @@ Every task ends the same way: push, green CI run, tick the task, one Log line, h
 - L4 (2026-11-12): user decision on history: "déjalos como están y sigue con la base visual. para evitar
   pasarnos del contexto podemos definir un plan de trabajo y los prompts por cada tarea. Asi hacemos cada
   tarea en una section. clear y seguimos para la otra." T2 closed; T3 split into T3-T5; one task per session.
+- L5 (2026-11-12): T3 done in 2535bfe, CI run 43236925717 green; device test pending. Font is Sniglet
+  (OFL 1.1, static Regular and ExtraBold from google/fonts). Tokens in `ui/theme`, `ClaySurface`/`ClayCard`/
+  `ClayButton`/`ClayBackground` in `ui/Clay.kt`, `GameScaffold` and `StarCounter` in `ui/GameScaffold.kt`.
+  The three games already use the clay cards; emojis stay until T5.
 - Engram mirror pending: the memory save was blocked in auto mode, so this file is the source of truth.
